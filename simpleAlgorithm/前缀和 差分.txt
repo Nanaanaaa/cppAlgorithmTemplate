@@ -1,0 +1,27 @@
+懒：
+
+一维前缀和
+S[i] = a[1] + a[2] + ... a[i]
+a[l] + ... + a[r] = S[r] - S[l - 1]
+
+二维前缀和
+s[i][j] = s[i - 1][j] + s[i][j - 1] - s[i - 1][j - 1] + a[i][j];
+以(x1, y1)为左上角，(x2, y2)为右下角的子矩阵的和为：
+S[x2, y2] - S[x1 - 1, y2] - S[x2, y1 - 1] + S[x1 - 1, y1 - 1]
+
+一维差分
+给区间[l, r]中的每个数加上c：B[l] += c, B[r + 1] -= c
+
+二维差分
+给以(x1, y1)为左上角，(x2, y2)为右下角的子矩阵中的所有元素加上c：
+S[x1, y1] += c, S[x2 + 1, y1] -= c, S[x1, y2 + 1] -= c, S[x2 + 1, y2 + 1] += c
+
+std::string s;
+std::getline(std::cin, s);
+
+std::vector<int> a;
+std::stringstream ssin(s);
+
+for (int x; ssin >> x; ) {
+    a.push_back(x);
+}

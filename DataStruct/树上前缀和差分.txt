@@ -1,0 +1,10 @@
+前缀和：
+设 sum[i] 表示节点 i 到根节点的权值总和。然后有以下两种情况：
+
+若是点权，x,y 路径上的和为 sum[x] + sum[y] - sum[lca] - sum[fa[lca]]。
+若是边权，x,y 路径上的和为 sum[x] + sum[y] - 2 * sum[lca]。
+其中，lca 表示 x 和 y 的最近公共祖先节点，fa[lca] 表示 lca 的父节点。
+
+差分：
+点差分：d[s] += v, d[t] += v, d[p] -= 1, d[f[lca]] -= 1;
+边差分：d[s] += v, d[t] += v, d[p] -= 2;
