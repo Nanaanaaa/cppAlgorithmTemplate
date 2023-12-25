@@ -1,15 +1,7 @@
-template<class P, class Q> P floor(P a, Q b) {
-    P res = a / b;
-    if ((a ^ b) < 0 && a % b != 0) {
-        res--;
-    }
-    return res;
+template<class T, class U> T floor(T x, U y) {
+    return x / y - (x % y && (x ^ y) < 0);
 }
 
-template<class P, class Q> P ceil(P a, Q b) {
-    P res = a / b;
-    if ((a ^ b) > 0 && a % b != 0) {
-        res++;
-    }
-    return res;
+template<class T, class U> T ceil(T x, U y) {
+    return floor(x + y - 1, y);
 }
