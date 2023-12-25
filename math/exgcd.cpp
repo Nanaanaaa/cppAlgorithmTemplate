@@ -8,9 +8,9 @@ i64 exgcd(i64 a, i64 b, i64& x, i64& y) {
     return g;
 }
 
-std::array<int, 3> exgcd(int a, int b) {
+std::array<i64, 3> exgcd(i64 a, i64 b) {
     if (b == 0) {
-        return { a, 1, 0 };
+        return std::array<i64, 3>{ a, 1, 0 };
     }
     auto [g, x, y] = exgcd(b, a % b);
     return { g, y, x - a / b * y };
