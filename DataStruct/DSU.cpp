@@ -24,7 +24,7 @@ public:
     bool same(int x, int y) {
         return find(x) == find(y);
     }
-    int find(int x) {
+    constexpr int find(int x) {
         while (p[x] != x) {
             x = p[x] = p[p[x]];
         }
