@@ -117,9 +117,9 @@ struct MInt {
         res /= rhs;
         return res;
     }
-    template <class T, class U = i64>
-    friend constexpr MInt operator^(T lhs, U rhs) {
-        MInt res = i64(lhs);
+    template <class T>
+    friend constexpr MInt operator^(T lhs, i64 rhs) {
+        MInt res = MInt(lhs);
         res ^= rhs;
         return res;
     }
