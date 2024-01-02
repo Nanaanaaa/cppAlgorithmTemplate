@@ -143,4 +143,7 @@ int MInt<0>::Mod = ::P;
 template<int V, int P = ::P>
 constexpr MInt<P> CInv = MInt<P>(V).inv();
 
+template<int P = ::P>
+constexpr MInt<P> M1 = MInt<P>(1);
+
 using Z = MInt<>;
