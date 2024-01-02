@@ -67,6 +67,10 @@ struct MInt {
     constexpr MInt& operator/=(MInt rhs)& {
         return *this *= rhs.inv();
     }
+    constexpr MInt& operator^=(i64 rhs)& {
+        *this = power(*this, rhs);
+        return *this;
+    }
 
     template <class T>
     constexpr MInt& operator*=(T rhs)& {
@@ -86,11 +90,6 @@ struct MInt {
     template <class T>
     constexpr MInt& operator/=(T rhs)& {
         *this /= MInt(rhs);
-        return *this;
-    }
-    template <class T>
-    constexpr MInt& operator^=(T rhs)& {
-        *this = power(*this, MInt(rhs));
         return *this;
     }
 
@@ -118,9 +117,9 @@ struct MInt {
         res /= rhs;
         return res;
     }
-    template <class T, class U>
+    template <class T, class U = i64>
     friend constexpr MInt operator^(T lhs, U rhs) {
-        MInt res = MInt(lhs);
+        MInt res = i64(lhs);
         res ^= rhs;
         return res;
     }
