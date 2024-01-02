@@ -68,49 +68,60 @@ struct MInt {
         return *this *= rhs.inv();
     }
 
-    template <class Q>
-    constexpr MInt& operator*=(Q rhs)& {
+    template <class T>
+    constexpr MInt& operator*=(T rhs)& {
         *this *= MInt(rhs);
         return *this;
     }
-    template <class Q>
-    constexpr MInt& operator+=(Q rhs)& {
+    template <class T>
+    constexpr MInt& operator+=(T rhs)& {
         *this += MInt(rhs);
         return *this;
     }
-    template <class Q>
-    constexpr MInt& operator-=(Q rhs)& {
+    template <class T>
+    constexpr MInt& operator-=(T rhs)& {
         *this -= MInt(rhs);
         return *this;
     }
-    template <class Q>
-    constexpr MInt& operator/=(Q rhs)& {
+    template <class T>
+    constexpr MInt& operator/=(T rhs)& {
         *this /= MInt(rhs);
         return *this;
     }
+    template <class T>
+    constexpr MInt& operator^=(T rhs)& {
+        *this = power(*this, MInt(rhs));
+        return *this;
+    }
 
-    template <class U, class Q>
-    friend constexpr MInt operator*(U lhs, Q rhs) {
+    template <class T, class U>
+    friend constexpr MInt operator*(T lhs, U rhs) {
         MInt res = MInt(lhs);
         res *= rhs;
         return res;
     }
-    template <class U, class Q>
-    friend constexpr MInt operator+(U lhs, Q rhs) {
+    template <class T, class U>
+    friend constexpr MInt operator+(T lhs, U rhs) {
         MInt res = MInt(lhs);
         res += rhs;
         return res;
     }
-    template <class U, class Q>
-    friend constexpr MInt operator-(U lhs, Q rhs) {
+    template <class T, class U>
+    friend constexpr MInt operator-(T lhs, U rhs) {
         MInt res = MInt(lhs);
         res -= rhs;
         return res;
     }
-    template <class U, class Q>
-    friend constexpr MInt operator/(U lhs, Q rhs) {
+    template <class T, class U>
+    friend constexpr MInt operator/(T lhs, U rhs) {
         MInt res = MInt(lhs);
         res /= rhs;
+        return res;
+    }
+    template <class T, class U>
+    friend constexpr MInt operator^(T lhs, U rhs) {
+        MInt res = MInt(lhs);
+        res ^= rhs;
         return res;
     }
 
@@ -123,14 +134,14 @@ struct MInt {
     friend constexpr std::ostream& operator<<(std::ostream& os, const MInt& a) {
         return os << a.val();
     }
-    template <class U, class Q>
-    friend constexpr MInt operator==(U lhs, Q rhs) {
+    template <class T, class U>
+    friend constexpr MInt operator==(T lhs, U rhs) {
         MInt t1 = MInt(lhs);
         MInt t2 = MInt(rhs);
         return t1.val() == t2.val();
     }
-    template <class U, class Q>
-    friend constexpr MInt operator!=(U lhs, Q rhs) {
+    template <class T, class U>
+    friend constexpr MInt operator!=(T lhs, U rhs) {
         MInt t1 = MInt(lhs);
         MInt t2 = MInt(rhs);
         return t1.val() != t2.val();
