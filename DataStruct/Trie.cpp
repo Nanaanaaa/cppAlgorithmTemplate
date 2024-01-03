@@ -114,6 +114,9 @@ public:
         }
         return t[p].cnt;
     }
+    template<class T> constexpr void operator+=(T& x) {
+        add(x);
+    }
     template<class T> constexpr void operator>>(T& x) {
         std::cin >> x;
         add(x);
