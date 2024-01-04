@@ -75,6 +75,23 @@ struct MInt {
         return *this;
     }
 
+    constexpr MInt& operator++()& {
+        return *this += 1;
+    }
+    constexpr MInt& operator++(int)& {
+        auto res = *this;
+        ++*this;
+        return res;
+    }
+    constexpr MInt& operator--()& {
+        return *this -= 1;
+    }
+    constexpr MInt& operator--(int)& {
+        auto res = *this;
+        --*this;
+        return res;
+    }
+
     template <class T>
     constexpr MInt& operator*=(T rhs)& {
         *this *= MInt(rhs);
@@ -94,23 +111,6 @@ struct MInt {
     constexpr MInt& operator/=(T rhs)& {
         *this /= MInt(rhs);
         return *this;
-    }
-
-    constexpr MInt& operator++()& {
-        return *this += 1;
-    }
-    constexpr MInt& operator++(int)& {
-        auto res = *this;
-        ++*this;
-        return res;
-    }
-    constexpr MInt& operator--()& {
-        return *this -= 1;
-    }
-    constexpr MInt& operator--(int)& {
-        auto res = *this;
-        --*this;
-        return res;
     }
 
     template <class T, class U>
