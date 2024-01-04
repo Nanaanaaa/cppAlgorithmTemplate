@@ -42,6 +42,9 @@ struct MInt {
     explicit constexpr operator int() const {
         return x;
     }
+    constexpr MInt& operator*() const {
+        return *this;
+    }
     constexpr MInt operator-() const {
         MInt res;
         res.x = norm(getMod() - x);
@@ -93,6 +96,23 @@ struct MInt {
         return *this;
     }
 
+    constexpr MInt& operator++()& {
+        return *this += 1;
+    }
+    constexpr MInt& operator++(int)& {
+        auto res = *this;
+        ++*this;
+        return res;
+    }
+    constexpr MInt& operator--()& {
+        return *this -= 1;
+    }
+    constexpr MInt& operator--(int)& {
+        auto res = *this;
+        --*this;
+        return res;
+    }
+
     template <class T, class U>
     friend constexpr MInt operator*(T lhs, U rhs) {
         MInt res = MInt(lhs);
@@ -130,7 +150,7 @@ struct MInt {
         a = MInt(v);
         return is;
     }
-    friend constexpr std::ostream& operator<<(std::ostream& os, const MInt& a) {
+    friend constexpr std::ostream& operator<<(std::ostream& os, const MInt& a) noexcept {
         return os << a.val();
     }
     template <class T, class U>
