@@ -1,5 +1,5 @@
 using i64 = long long;
-template<class T>
+template<class T = int>
 struct Point {
     T x;
     T y;
