@@ -1,6 +1,6 @@
 // 本质不同的边多 用priority_queue 否则std::set
 template<class T = int>
-auto dijkstra(int s, auto& adj) {
+std::vector<T> dijkstra(int s, auto& adj) {
     using e = std::pair<T, int>;
     const int n = adj.size();
 
@@ -25,7 +25,7 @@ auto dijkstra(int s, auto& adj) {
 // std::priority_queue
 
 template<class T = int>
-auto dijkstra(int s, auto& adj) {
+std::vector<T> dijkstra(int s, auto& adj) {
     using e = std::pair<T, int>;
     const int n = adj.size();
 
@@ -49,7 +49,7 @@ auto dijkstra(int s, auto& adj) {
 
 // 朴素 小常数
 template<class T = int>
-auto dijkstra(int s, auto& adj) {
+std::vector<T> dijkstra(int s, auto& adj) {
     using e = std::pair<T, int>;
     const T inf = std::numeric_limits<T>::max();
     const int n = adj.size();
