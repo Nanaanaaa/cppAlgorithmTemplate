@@ -6,10 +6,10 @@ struct StringHash {
     int n;
     std::vector<int> h1, h2, p1, p2;
     StringHash() {}
-    StringHash(const std::string& s) {
+    StringHash(std::string_view s) {
         init(s);
     }
-    void init(const std::string& s) {
+    void init(std::string_view s) {
         n = s.size();
         h1.assign(n + 1, 0);
         h2.assign(n + 1, 0);
