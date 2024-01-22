@@ -1,3 +1,7 @@
+#include <bits/stdc++.h>
+
+using i64 = int64_t;
+
 template<class T = int, int M = 500>
 struct Block {
     int n;
@@ -5,20 +9,20 @@ struct Block {
     std::vector<i64> sum;
     std::vector<i64> tag;
     std::vector<int> bel;
-    Block(int n) :n(n), a(n), sum(M), tag(M), bel(n) {
+    constexpr Block(int n) :n(n), a(n), sum(M), tag(M), bel(n) {
         for (int i = 0; i < n; i++) {
             bel[i] = i / M;
         }
     }
-    Block(std::vector<T> init_) {
+    constexpr Block(std::vector<T> init_) {
         Block(init_.size());
         for (int i = 0; i < n; i++) {
             a[i] = init_[i];
             sum[bel[i]] += init_[i];
         }
     }
-    void modify(int l, int r, T v) {
-        if (bel(l) == bel(r)) {
+    constexpr void modify(int l, int r, T v) {
+        if (bel[l] == bel[r]) {
             for (int i = l; i <= r; i++) {
                 a[i] += v;
                 sum[bel[i]] += v;
@@ -40,10 +44,10 @@ struct Block {
             }
         }
     }
-    void modify(int x, T v) {
+    constexpr void modify(int x, T v) {
         return modify(x, x, v);
     }
-    i64 query(int l, int r) {
+    constexpr i64 query(int l, int r) {
         i64 ans = 0;
         if (bel[l] == bel[r]) {
             for (int i = l; i <= r; i++) {
@@ -64,7 +68,7 @@ struct Block {
         }
         return ans;
     }
-    i64 query(int x) {
+    constexpr i64 query(int x) {
         return query(x, x);
     }
 };

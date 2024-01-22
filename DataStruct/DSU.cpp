@@ -10,7 +10,7 @@ public:
         siz.clear();
         siz.shrink_to_fit();
     }
-    void init(int n) {
+    constexpr void init(int n) {
         p.assign(n, 0);
         siz.assign(n, 1);
         std::iota(p.begin(), p.end(), 0);
@@ -18,10 +18,10 @@ public:
     constexpr int operator[] (int x) {
         return find(x);
     }
-    int size(int i) {
+    constexpr int size(int i) {
         return siz[find(i)];
     }
-    bool same(int x, int y) {
+    constexpr bool same(int x, int y) {
         return find(x) == find(y);
     }
     constexpr int find(int x) {
@@ -30,7 +30,7 @@ public:
         }
         return x;
     }
-    bool merge(int x, int y, int flag = true) {
+    constexpr bool merge(int x, int y, int flag = true) {
         x = find(x), y = find(y);
         if (x == y) {
             return false;
