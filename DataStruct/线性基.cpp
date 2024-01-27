@@ -1,6 +1,6 @@
 using u64 = uint64_t;
 constexpr int B = 63;
-struct LinearBasis {
+struct Basis {
     u64 p[B + 1]{};
     std::vector<u64> d;
     bool z = false;
