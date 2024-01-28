@@ -1,4 +1,5 @@
-constexpr int P = 998244353;
+using uint = uint32_t;
+constexpr uint P = 998244353;
 template<class T>
 constexpr T power(T a, i64 b) {
     T res = 1;
@@ -10,25 +11,20 @@ constexpr T power(T a, i64 b) {
     }
     return sgn == -1 ? 1 / res : res;
 }
-template<int P = ::P>
+template<uint P = ::P>
 struct MInt {
-    int x;
+    uint x;
     constexpr MInt() : x{} {}
     constexpr MInt(i64 x) : x{ norm(x % getMod()) } {}
 
-    static int Mod;
-    constexpr static int getMod() {
-        if (P > 0) {
-            return P;
-        }
-        else {
-            return Mod;
-        }
+    static uint Mod;
+    constexpr static uint getMod() {
+        return Mod;
     }
-    constexpr static void setMod(int Mod_) {
+    constexpr static void setMod(uint Mod_) {
         Mod = Mod_;
     }
-    constexpr int norm(int x) const {
+    constexpr uint norm(uint x) const {
         if (x < 0) {
             x += getMod();
         }
@@ -37,10 +33,10 @@ struct MInt {
         }
         return x;
     }
-    constexpr int val() const {
+    constexpr uint val() const {
         return x;
     }
-    explicit constexpr operator int() const {
+    explicit constexpr operator uint() const {
         return x;
     }
     constexpr MInt& operator*() const {
@@ -168,13 +164,14 @@ struct MInt {
     }
 };
 
-template<>
-int MInt<0>::Mod = ::P;
+template<uint P> uint MInt<P>::Mod;
 
-template<int V, int P = ::P>
+template<> uint MInt<0>::Mod = ::P;
+
+template<uint V, uint P = ::P>
 constexpr MInt<P> CInv = MInt<P>(V).inv();
 
-template<int P = ::P>
+template<uint P = ::P>
 constexpr MInt<P> Z1 = MInt<P>(1);
 
 using Z = MInt<>;
