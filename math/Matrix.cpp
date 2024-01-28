@@ -119,19 +119,19 @@ struct Matrix {
         return mat[i];
     }
 
-    const auto& begin() {
-        return mat.begin();
-    }
-    const auto& end() {
-        return mat.end();
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, const Matrix& M) {
+    constexpr friend std::ostream& operator<<(std::ostream& os, const Matrix& M) {
         for (auto it : M.mat) {
             for (int i = 0; i < it.size(); i++) {
                 os << it[i] << " \n"[i + 1 == it.size()];
             }
         }
         return os;
+    }
+
+    constexpr auto& begin() {
+        return mat.begin();
+    }
+    constexpr auto& end() {
+        return mat.end();
     }
 };
