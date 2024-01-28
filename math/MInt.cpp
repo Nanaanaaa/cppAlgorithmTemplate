@@ -19,6 +19,9 @@ struct MInt {
 
     static uint Mod;
     constexpr static uint getMod() {
+        if (Mod == 0) {
+            return P;
+        }
         return Mod;
     }
     constexpr static void setMod(uint Mod_) {
