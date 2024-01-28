@@ -2,14 +2,8 @@ class DSU {
 private:
     std::vector<int> p, siz;
 public:
-    DSU() {}
-    DSU(int n) { init(n); }
-    ~DSU() {
-        p.clear();
-        p.shrink_to_fit();
-        siz.clear();
-        siz.shrink_to_fit();
-    }
+    explicit DSU() {}
+    explicit DSU(int n) { init(n); }
     constexpr void init(int n) {
         p.assign(n, 0);
         siz.assign(n, 1);

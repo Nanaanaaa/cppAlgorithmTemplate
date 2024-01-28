@@ -1,27 +1,41 @@
-template<class T>
+template<class T = int>
 struct Matrix {
-    int n;
+    int n, m;
     std::vector<std::vector<T>> mat;
-    Matrix() {}
-    Matrix(int n) :n(n) {
+    Matrix() :n(0), m(0) {}
+    Matrix(int n) :n(n), m(n) {
         mat.assign(n, std::vector<T>(n));
     }
-    Matrix(std::vector<std::vector<T>> mat) :n(mat.size()) {
+    Matrix(int n, int m) :n(n), m(m) {
+        mat.assign(n, std::vector<T>(m));
+    }
+    Matrix(const std::vector<std::vector<T>>& mat) :n(mat.size()), m(mat.front().size()) {
         this->mat = mat;
     }
-    Matrix(std::vector<T> init) {
-        n = std::sqrt(init.size());
-        mat.assign(n, {});
+    Matrix(const std::vector<T>& init) {
+        n = m = std::sqrt(init.size());
+        mat.assign(n, std::vector<T>(m));
         for (int i = 0, k = 0; i < n; i++) {
-            for (int j = 0; j < n; j++, k++) {
+            for (int j = 0; j < m; j++, k++) {
+                mat[i][j] = init[k];
+            }
+        }
+    }
+    Matrix(int n, int m, const std::vector<T>& init) {
+        this->n = n;
+        this->m = m;
+        mat.assign(n, std::vector<T>(m));
+        for (int i = 0, k = 0; i < n; i++) {
+            for (int j = 0; j < m; j++, k++) {
                 mat[i][j] = init[k];
             }
         }
     }
 
-    Matrix& operator+=(const Matrix& rhs) {
+    constexpr Matrix& operator+=(const Matrix& rhs) {
+        assert(this->n == rhs.n && this->m == rhs.m);
         for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
+            for (int j = 0; j < m; j++) {
                 mat[i][j] += rhs[i][j];
             }
         }
@@ -34,9 +48,10 @@ struct Matrix {
         return res;
     }
 
-    Matrix& operator-=(const Matrix& rhs) {
+    constexpr Matrix& operator-=(const Matrix& rhs) {
+        assert(this->n == rhs.n && this->m == rhs.m);
         for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
+            for (int j = 0; j < m; j++) {
                 mat[i][j] -= rhs[i][j];
             }
         }
@@ -49,13 +64,13 @@ struct Matrix {
         return res;
     }
 
-
-    Matrix& operator*=(const Matrix& rhs) {
-        Matrix res(n);
+    constexpr Matrix& operator*=(const Matrix& rhs) {
+        Matrix res(n, m);
+        assert(this->m == rhs.n);
         for (int i = 0; i < n; i++) {
             for (int k = 0; k < n; k++) {
                 auto r = mat[i][k];
-                for (int j = 0; j < n; j++) {
+                for (int j = 0; j < m; j++) {
                     res.mat[i][j] += rhs.mat[k][j] * r;
                 }
             }
@@ -70,7 +85,8 @@ struct Matrix {
         return res;
     }
 
-    Matrix& operator ^=(i64 k) {
+    constexpr Matrix& operator^=(i64 k) {
+        assert(this->n == this->m);
         Matrix a = *this;
         Matrix b(n);
         for (int i = 0; i < n; i++) {
@@ -84,9 +100,13 @@ struct Matrix {
         mat = std::move(b.mat);
         return *this;
     }
-    constexpr friend Matrix operator ^(const Matrix& lhs, i64 k) {
+    constexpr friend Matrix operator^(const Matrix& lhs, i64 k) {
         Matrix res = lhs;
         res ^= k;
         return res;
+    }
+
+    constexpr auto& operator[](int i) {
+        return mat[i];
     }
 };
