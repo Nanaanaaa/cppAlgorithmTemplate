@@ -89,9 +89,28 @@ struct Matrix {
         return *this;
     }
 
+    constexpr Matrix& operator*=(i64 k) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                mat[i][j] *= k;
+            }
+        }
+        return *this;
+    }
+
     constexpr friend Matrix operator*(const Matrix& lhs, const Matrix& rhs) {
         Matrix res = lhs;
         res *= rhs;
+        return res;
+    }
+    constexpr friend Matrix operator*(T k, const Matrix& rhs) {
+        Matrix res = rhs;
+        res *= k;
+        return res;
+    }
+    constexpr friend Matrix operator*(const Matrix& lhs, T k) {
+        Matrix res = lhs;
+        res *= k;
         return res;
     }
 
@@ -153,13 +172,16 @@ struct Matrix {
             }
             assert(row < n && col < m);
             assert(a[row][col] != 0);
-            for (int i = row + 1; i < n; i++) {
-                for (int j = col; j < m; j++) {
-                    a[i][j] -= a[i][col] / a[row][col];
-                }
-            }
             for (int i = m - 1; i >= col; i--) {
                 a[row][i] /= a[row][col];
+            }
+
+            for (int i = 0; i < n; i++) {
+                if (i == row) continue;
+                T k = a[i][col];
+                for (int j = col; j < m; j++) {
+                    a[i][j] -= k * a[row][j];
+                }
             }
         }
         return a;
