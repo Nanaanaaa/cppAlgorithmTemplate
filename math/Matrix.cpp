@@ -1,6 +1,7 @@
 template<class T = int>
 struct Matrix {
     int n, m;
+    int rnk = -1;
     std::vector<std::vector<T>> mat;
     constexpr Matrix() :n(0), m(0) {}
     constexpr Matrix(int n) : n(n), m(n) {
@@ -133,5 +134,34 @@ struct Matrix {
     }
     constexpr auto& end() {
         return mat.end();
+    }
+
+    const int rank() {
+        rref();
+        return rnk;
+    }
+
+    Matrix rref() {
+        Matrix a = *this;
+        rnk = 0;
+        for (int row = 0, col = 0; row < n && col < m; row++, rnk++) {
+            while (col < m && a[row][col] == 0) {
+                col++;
+            }
+            if (col == m) {
+                break;
+            }
+            assert(row < n && col < m);
+            assert(a[row][col] != 0);
+            for (int i = row + 1; i < n; i++) {
+                for (int j = col; j < m; j++) {
+                    a[i][j] -= a[i][col] / a[row][col];
+                }
+            }
+            for (int i = m - 1; i >= col; i--) {
+                a[row][i] /= a[row][col];
+            }
+        }
+        return a;
     }
 };
