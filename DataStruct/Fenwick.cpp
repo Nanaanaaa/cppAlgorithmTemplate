@@ -3,6 +3,14 @@ class Fenwick {
 private:
     int n;
     std::vector<T> tr;
+    struct Proxy {
+        Fenwick<T>& fen{};
+        int idx{};
+        constexpr Proxy& operator+=(const T& v) {
+            fen.add(idx, v);
+            return *this;
+        }
+    };
 public:
     Fenwick(int n = 0) {
         init(n);
@@ -13,11 +21,11 @@ public:
             add(i, init_[i]);
         }
     }
-    void init(int __n) {
-        n = __n;
+    void init(int n_) {
+        n = n_;
         tr.assign(n, {});
     }
-    void add(int x, T v) {
+    void add(int x, const T& v) {
         for (++x; x <= n; x += x & -x) {
             tr[x - 1] += v;
         }
@@ -32,15 +40,6 @@ public:
     T rangeSum(int l, int r) {
         return sum(r) - sum(l);
     }
-    constexpr void operator+=(std::pair<int, T> t) {
-        add(t.first, t.second);
-    }
-    constexpr T operator() (int x) {
-        return sum(x);
-    }
-    constexpr T operator() (int l, int r) {
-        return rangeSum(l, r);
-    }
     int kth(T k) {
         int x = 0;
         for (int i = 1 << std::__lg(n); i; i /= 2) {
@@ -50,5 +49,14 @@ public:
             }
         }
         return x;
+    }
+    constexpr Proxy operator[](int i) {
+        return Proxy{ *this, i };
+    }
+    constexpr T operator() (int x) {
+        return sum(x);
+    }
+    constexpr T operator() (int l, int r) {
+        return rangeSum(l, r);
     }
 };

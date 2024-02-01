@@ -95,10 +95,6 @@ struct LazySegmentTree {
         return rangeApply(1, 0, n, l, r, t);
     }
 
-    constexpr Info operator()(int l, int r) {
-        return rangeQuery(l, r);
-    }
-
     int findFirst(int p, int l, int r, int x, int y, auto check) {
         if (l >= y || r <= x || !check(tr[p])) {
             return -1;
@@ -116,7 +112,6 @@ struct LazySegmentTree {
     int findFirst(int x, int y, auto check) {
         return findFirst(1, 0, n, x, y, check);
     }
-
     int findLast(int p, int l, int r, int x, int y, auto check) {
         if (l >= y || r <= x || !check(tr[p])) {
             return -1;
@@ -134,6 +129,24 @@ struct LazySegmentTree {
     int findLast(int x, int y, auto check) {
         return findLast(1, 0, n, x, y, check);
     }
-
+    struct Proxy {
+        LazySegmentTree<Info, Tag>& seg{};
+        int i = 0, j = -1;
+        constexpr Proxy& operator=(const Info& info) {
+            seg.modify(i, info);
+            return *this;
+        }
+        constexpr Proxy& operator+=(const Tag& tag) {
+            assert(j > i);
+            seg.rangeApply(i, j, tag);
+            return *this;
+        }
+    };
+    constexpr Proxy operator()(int i) {
+        return Proxy{ *this, i };
+    }
+    constexpr Proxy operator()(int i, int j) {
+        return Proxy{ *this, i, j };
+    }
 #undef m
 };

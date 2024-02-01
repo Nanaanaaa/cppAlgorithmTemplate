@@ -148,7 +148,7 @@ struct Matrix {
         return os;
     }
 
-    constexpr auto& begin() {
+    constexpr auto& begin() const {
         return mat.begin();
     }
     constexpr auto& end() {

@@ -64,10 +64,6 @@ struct SegmentTree {
         return rangeQuery(1, 0, n, l, r);
     }
 
-    constexpr Info operator()(int l, int r) {
-        return rangeQuery(l, r);
-    }
-
     int findFirst(int p, int l, int r, int x, int y, auto check) {
         if (l >= y || r <= x || !check(tr[p])) {
             return -1;
@@ -101,5 +97,17 @@ struct SegmentTree {
     int findLast(int x, int y, auto check) {
         return findLast(1, 0, n, x, y, check);
     }
+    struct Proxy {
+        SegmentTree<Info>& seg{};
+        int i{};
+        constexpr Proxy& operator=(const Info& info) {
+            seg.modify(i, info);
+            return *this;
+        }
+    };
+    constexpr Proxy operator()(int i) {
+        return Proxy{ *this, i };
+    }
+
 #undef m
 };
