@@ -98,16 +98,21 @@ struct SegmentTree {
         return findLast(1, 0, n, x, y, check);
     }
     struct Proxy {
-        SegmentTree<Info>& seg{};
-        int i{};
+        SegmentTree& seg{};
+        int i = 0, j = 1;
+        Info val{};
+        Proxy(SegmentTree& seg, int i, int j) :seg(seg), i(i), j(j), val(seg.rangeQuery(i, j)) {}
         constexpr Proxy& operator=(const Info& info) {
+            assert(j == i + 1);
             seg.modify(i, info);
             return *this;
         }
     };
     constexpr Proxy operator()(int i) {
-        return Proxy{ *this, i };
+        return Proxy(*this, i, i + 1);
     }
-
+    constexpr Proxy operator()(int i, int j) {
+        return Proxy(*this, i, j);
+    }
 #undef m
 };

@@ -130,23 +130,24 @@ struct LazySegmentTree {
         return findLast(1, 0, n, x, y, check);
     }
     struct Proxy {
-        LazySegmentTree<Info, Tag>& seg{};
-        int i = 0, j = -1;
+        LazySegmentTree& seg{};
+        int i = 0, j = 1;
+        Info val{};
+        Proxy(LazySegmentTree& seg, int i, int j) :seg(seg), i(i), j(j), val(seg.rangeQuery(i, j)) {}
         constexpr Proxy& operator=(const Info& info) {
             seg.modify(i, info);
             return *this;
         }
         constexpr Proxy& operator+=(const Tag& tag) {
-            assert(j > i);
             seg.rangeApply(i, j, tag);
             return *this;
         }
     };
     constexpr Proxy operator()(int i) {
-        return Proxy{ *this, i };
+        return Proxy(*this, i, i + 1);
     }
     constexpr Proxy operator()(int i, int j) {
-        return Proxy{ *this, i, j };
+        return Proxy(*this, i, j);
     }
 #undef m
 };
