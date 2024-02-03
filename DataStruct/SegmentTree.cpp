@@ -108,6 +108,9 @@ struct SegmentTree {
             return *this;
         }
     };
+    constexpr Proxy operator[](int i) {
+        return Proxy(*this, i, i + 1);
+    }
     constexpr Proxy operator()(int i) {
         return Proxy(*this, i, i + 1);
     }
