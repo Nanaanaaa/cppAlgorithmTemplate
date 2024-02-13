@@ -142,7 +142,7 @@ struct LazySegmentTree {
             return *this;
         }
         constexpr Proxy& operator+=(const Tag& tag) {
-            seg.rangeApply(i, j, tag);
+            seg.rangeApply(i, j, Tag(tag));
             return *this;
         }
     };

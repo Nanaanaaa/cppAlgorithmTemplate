@@ -6,6 +6,9 @@ private:
     struct Proxy {
         Fenwick<T>& fen{};
         int idx{};
+        constexpr Info* operator->() {
+            return &val;
+        }
         constexpr Proxy& operator+=(const T& v) {
             fen.add(idx, v);
             return *this;
