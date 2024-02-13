@@ -102,6 +102,9 @@ struct SegmentTree {
         int i = 0, j = 1;
         Info val{};
         Proxy(SegmentTree& seg, int i, int j) :seg(seg), i(i), j(j), val(seg.rangeQuery(i, j)) {}
+        constexpr Info* operator->() {
+            return &val;
+        }
         constexpr Proxy& operator=(const Info& info) {
             assert(j == i + 1);
             seg.modify(i, info);

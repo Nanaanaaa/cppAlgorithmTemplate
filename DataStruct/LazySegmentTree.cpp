@@ -134,6 +134,9 @@ struct LazySegmentTree {
         int i = 0, j = 1;
         Info val{};
         Proxy(LazySegmentTree& seg, int i, int j) :seg(seg), i(i), j(j), val(seg.rangeQuery(i, j)) {}
+        constexpr Info* operator->() {
+            return &val;
+        }
         constexpr Proxy& operator=(const Info& info) {
             seg.modify(i, info);
             return *this;
