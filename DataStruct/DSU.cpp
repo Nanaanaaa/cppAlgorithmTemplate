@@ -26,11 +26,14 @@ struct DSU {
         return find(x) == find(y);
     }
 
-    bool merge(int x, int y) {
+    bool merge(int x, int y, bool t = true) {
         x = find(x);
         y = find(y);
         if (x == y) {
             return false;
+        }
+        if (t && siz[x] < siz[y]) {
+            std::swap(x, y);
         }
         siz[x] += siz[y];
         f[y] = x;
