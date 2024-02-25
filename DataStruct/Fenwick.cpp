@@ -1,3 +1,4 @@
+
 template<typename T = int>
 class Fenwick {
 private:
@@ -6,8 +7,8 @@ private:
     struct Proxy {
         Fenwick<T>& fen{};
         int idx{};
-        constexpr Info* operator->() {
-            return &val;
+        constexpr T* operator->() {
+            return &fen;
         }
         constexpr Proxy& operator+=(const T& v) {
             fen.add(idx, v);
@@ -19,14 +20,17 @@ public:
         init(n);
     }
     Fenwick(const std::vector<T>& init_) {
-        init(init_.size());
-        for (int i = 0; i < n; i++) {
-            add(i, init_[i]);
-        }
+        init(init_);
     }
     void init(int n_) {
         n = n_;
         tr.assign(n, {});
+    }
+    void init(const std::vector<T>& init_) {
+        init(init_.size());
+        for (int i = 0; i < n; i++) {
+            add(i, init_[i]);
+        }
     }
     void add(int x, const T& v) {
         for (++x; x <= n; x += x & -x) {
