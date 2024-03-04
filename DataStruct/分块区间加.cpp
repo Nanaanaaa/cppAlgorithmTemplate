@@ -2,14 +2,16 @@
 
 using i64 = int64_t;
 
-template<class T = int, int M = 500>
+constexpr int M = 500;
+
+template<class T = int>
 struct Block {
     int n;
     std::vector<T> a;
-    std::vector<i64> sum;
-    std::vector<i64> tag;
     std::vector<int> bel;
-    constexpr Block(int n) :n(n), a(n), sum(M), tag(M), bel(n) {
+    std::array<i64, M> sum;
+    std::array<i64, M> tag;
+    constexpr Block(int n) :n(n), a(n), bel(n), sum{}, tag{} {
         for (int i = 0; i < n; i++) {
             bel[i] = i / M;
         }
@@ -21,7 +23,7 @@ struct Block {
             sum[bel[i]] += init_[i];
         }
     }
-    constexpr void modify(int l, int r, T v) {
+    constexpr void add(int l, int r, const T& v) {
         if (bel[l] == bel[r]) {
             for (int i = l; i <= r; i++) {
                 a[i] += v;
@@ -44,8 +46,8 @@ struct Block {
             }
         }
     }
-    constexpr void modify(int x, T v) {
-        return modify(x, x, v);
+    constexpr void add(int x, const T& v) {
+        return add(x, x, v);
     }
     constexpr i64 query(int l, int r) {
         i64 ans = 0;
