@@ -14,6 +14,14 @@ int __builtin_parity(unsigned int x) ：判断 x 的二进制中 1 的个数的�
 这些函数都可以在函数名末尾添加 l 或 ll （如 __builtin_popcountll ）来使参数类型变为 ( unsigned ) long 或 ( unsigned ) long long （返回值仍然是 int 类型）。 
 例如，我们有时候希望求出一个数以二为底的对数，如果不考虑 0 的特殊情况，就相当于这个数二进制的位数 -1 ，而一个数 n 的二进制表示的位数可以使用 32-__builtin_clz(n) 表示，因此 31-__builtin_clz(n) 就可以求出 n 以二为底的对数。
 
+std::popcount
+
+has_single_bit: 是否只有一个比特位为1，换句话说，是否为2的次幂。
+bit_width: bit有效位，也就是最少有多少位可以表示该数字。
+countl_zero, countl_one,: 左端点开始连续0/1个数。
+countr_zero, countr_one: 右侧开始连续0/1个数
+bit_ceil, bit_floor 返回 n 以上最小的2的次幂或者以下最大的2的次幂。
+
 std::bitset<N>:
 构造函数
 bitset(): 每一位都是 false。
