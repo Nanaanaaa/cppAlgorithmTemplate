@@ -18,7 +18,7 @@ struct DSU {
         }
         return x;
     }
-    constexpr int& operator[](int i) {
+    constexpr int operator[](int i) {
         return find(i);
     }
 
