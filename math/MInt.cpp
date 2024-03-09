@@ -1,33 +1,41 @@
-using uint = uint32_t;
-constexpr uint P = 998244353;
 template<class T>
 constexpr T power(T a, i64 b) {
     T res = 1;
-    int sgn = b < 0 ? -1 : 1;
-    for (b *= sgn; b; b /= 2, a *= a) {
+    for (; b; b /= 2, a *= a) {
         if (b % 2) {
             res *= a;
         }
     }
-    return sgn == -1 ? 1 / res : res;
+    return res;
 }
-template<uint P = ::P>
-struct MInt {
-    uint x;
-    constexpr MInt() : x{} {}
-    constexpr MInt(i64 x) : x{ norm(x % getMod()) } {}
 
-    static uint Mod;
-    constexpr static uint getMod() {
-        if (Mod == 0) {
+constexpr i64 mul(i64 a, i64 b, i64 p) {
+    i64 res = a * b - i64(1.L * a * b / p) * p;
+    res %= p;
+    if (res < 0) {
+        res += p;
+    }
+    return res;
+}
+template<i64 P>
+struct MLong {
+    i64 x;
+    constexpr MLong() : x{} {}
+    constexpr MLong(i64 x) : x{ norm(x % getMod()) } {}
+
+    static i64 Mod;
+    constexpr static i64 getMod() {
+        if (P > 0) {
             return P;
         }
-        return Mod;
+        else {
+            return Mod;
+        }
     }
-    constexpr static void setMod(uint Mod_) {
+    constexpr static void setMod(i64 Mod_) {
         Mod = Mod_;
     }
-    constexpr uint norm(uint x) const {
+    constexpr i64 norm(i64 x) const {
         if (x < 0) {
             x += getMod();
         }
@@ -36,14 +44,108 @@ struct MInt {
         }
         return x;
     }
-    constexpr uint val() const {
+    constexpr i64 val() const {
         return x;
     }
-    explicit constexpr operator uint() const {
+    explicit constexpr operator i64() const {
         return x;
     }
-    constexpr MInt& operator*() const {
+    constexpr MLong operator-() const {
+        MLong res;
+        res.x = norm(getMod() - x);
+        return res;
+    }
+    constexpr MLong inv() const {
+        assert(x != 0);
+        return power(*this, getMod() - 2);
+    }
+    constexpr MLong& operator*=(MLong rhs)& {
+        x = mul(x, rhs.x, getMod());
         return *this;
+    }
+    constexpr MLong& operator+=(MLong rhs)& {
+        x = norm(x + rhs.x);
+        return *this;
+    }
+    constexpr MLong& operator-=(MLong rhs)& {
+        x = norm(x - rhs.x);
+        return *this;
+    }
+    constexpr MLong& operator/=(MLong rhs)& {
+        return *this *= rhs.inv();
+    }
+    friend constexpr MLong operator*(MLong lhs, MLong rhs) {
+        MLong res = lhs;
+        res *= rhs;
+        return res;
+    }
+    friend constexpr MLong operator+(MLong lhs, MLong rhs) {
+        MLong res = lhs;
+        res += rhs;
+        return res;
+    }
+    friend constexpr MLong operator-(MLong lhs, MLong rhs) {
+        MLong res = lhs;
+        res -= rhs;
+        return res;
+    }
+    friend constexpr MLong operator/(MLong lhs, MLong rhs) {
+        MLong res = lhs;
+        res /= rhs;
+        return res;
+    }
+    friend constexpr std::istream& operator>>(std::istream& is, MLong& a) {
+        i64 v;
+        is >> v;
+        a = MLong(v);
+        return is;
+    }
+    friend constexpr std::ostream& operator<<(std::ostream& os, const MLong& a) {
+        return os << a.val();
+    }
+    friend constexpr bool operator==(MLong lhs, MLong rhs) {
+        return lhs.val() == rhs.val();
+    }
+    friend constexpr bool operator!=(MLong lhs, MLong rhs) {
+        return lhs.val() != rhs.val();
+    }
+};
+
+template<>
+i64 MLong<0LL>::Mod = i64(1E18) + 9;
+
+template<int P>
+struct MInt {
+    int x;
+    constexpr MInt() : x{} {}
+    constexpr MInt(i64 x) : x{ norm(x % getMod()) } {}
+
+    static int Mod;
+    constexpr static int getMod() {
+        if (P > 0) {
+            return P;
+        }
+        else {
+            return Mod;
+        }
+    }
+    constexpr static void setMod(int Mod_) {
+        Mod = Mod_;
+    }
+    constexpr int norm(int x) const {
+        if (x < 0) {
+            x += getMod();
+        }
+        if (x >= getMod()) {
+            x -= getMod();
+        }
+        return x;
+    }
+    constexpr int val() const {
+        return x;
+    }
+    explicit constexpr operator int() const {
+        return x;
     }
     constexpr MInt operator-() const {
         MInt res;
@@ -54,7 +156,6 @@ struct MInt {
         assert(x != 0);
         return power(*this, getMod() - 2);
     }
-
     constexpr MInt& operator*=(MInt rhs)& {
         x = 1LL * x * rhs.x % getMod();
         return *this;
@@ -70,111 +171,48 @@ struct MInt {
     constexpr MInt& operator/=(MInt rhs)& {
         return *this *= rhs.inv();
     }
-    constexpr MInt& operator^=(i64 rhs)& {
-        *this = power(*this, rhs);
-        return *this;
-    }
-
-    constexpr MInt& operator++()& {
-        return *this += 1;
-    }
-    constexpr MInt& operator++(int)& {
-        auto res = *this;
-        ++*this;
-        return res;
-    }
-    constexpr MInt& operator--()& {
-        return *this -= 1;
-    }
-    constexpr MInt& operator--(int)& {
-        auto res = *this;
-        --*this;
-        return res;
-    }
-
-    template <class T>
-    constexpr MInt& operator*=(T rhs)& {
-        *this *= MInt(rhs);
-        return *this;
-    }
-    template <class T>
-    constexpr MInt& operator+=(T rhs)& {
-        *this += MInt(rhs);
-        return *this;
-    }
-    template <class T>
-    constexpr MInt& operator-=(T rhs)& {
-        *this -= MInt(rhs);
-        return *this;
-    }
-    template <class T>
-    constexpr MInt& operator/=(T rhs)& {
-        *this /= MInt(rhs);
-        return *this;
-    }
-
-    template <class T, class U>
-    friend constexpr MInt operator*(T lhs, U rhs) {
-        MInt res = MInt(lhs);
+    friend constexpr MInt operator*(MInt lhs, MInt rhs) {
+        MInt res = lhs;
         res *= rhs;
         return res;
     }
-    template <class T, class U>
-    friend constexpr MInt operator+(T lhs, U rhs) {
-        MInt res = MInt(lhs);
+    friend constexpr MInt operator+(MInt lhs, MInt rhs) {
+        MInt res = lhs;
         res += rhs;
         return res;
     }
-    template <class T, class U>
-    friend constexpr MInt operator-(T lhs, U rhs) {
-        MInt res = MInt(lhs);
+    friend constexpr MInt operator-(MInt lhs, MInt rhs) {
+        MInt res = lhs;
         res -= rhs;
         return res;
     }
-    template <class T, class U>
-    friend constexpr MInt operator/(T lhs, U rhs) {
-        MInt res = MInt(lhs);
+    friend constexpr MInt operator/(MInt lhs, MInt rhs) {
+        MInt res = lhs;
         res /= rhs;
         return res;
     }
-    template <class T>
-    friend constexpr MInt operator^(T lhs, i64 rhs) {
-        MInt res = MInt(lhs);
-        res ^= rhs;
-        return res;
-    }
-
     friend constexpr std::istream& operator>>(std::istream& is, MInt& a) {
         i64 v;
         is >> v;
         a = MInt(v);
         return is;
     }
-    friend constexpr std::ostream& operator<<(std::ostream& os, const MInt& a) noexcept {
+    friend constexpr std::ostream& operator<<(std::ostream& os, const MInt& a) {
         return os << a.val();
     }
-    template <class T, class U>
-    friend constexpr MInt operator==(T lhs, U rhs) {
-        MInt t1 = MInt(lhs);
-        MInt t2 = MInt(rhs);
-        return t1.val() == t2.val();
+    friend constexpr bool operator==(MInt lhs, MInt rhs) {
+        return lhs.val() == rhs.val();
     }
-    template <class T, class U>
-    friend constexpr MInt operator!=(T lhs, U rhs) {
-        MInt t1 = MInt(lhs);
-        MInt t2 = MInt(rhs);
-        return t1.val() != t2.val();
+    friend constexpr bool operator!=(MInt lhs, MInt rhs) {
+        return lhs.val() != rhs.val();
     }
 };
 
-template<uint P> uint MInt<P>::Mod;
+template<>
+int MInt<0>::Mod = 998244353;
 
-template<> uint MInt<0>::Mod = ::P;
-
-template<uint V, uint P = ::P>
+template<int V, int P>
 constexpr MInt<P> CInv = MInt<P>(V).inv();
 
-template<uint P = ::P>
-constexpr MInt<P> Z1 = MInt<P>(1);
-
-using Z = MInt<>;
+constexpr int P = 998244353;
+using Z = MInt<P>;
