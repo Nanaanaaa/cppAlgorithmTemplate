@@ -81,4 +81,4 @@ struct Frac {
     }
 };
 
-using F = Frac<__int128>;
+using F = Frac<i64>;
