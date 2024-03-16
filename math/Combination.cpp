@@ -4,7 +4,7 @@ namespace comb {
     std::vector<Z> _invfac{ 1 };
     std::vector<Z> _inv;
 
-    void init(uint m) {
+    void init(int m) {
         m = std::min(m, Z::getMod() - 1);
         if (m <= n) return;
         _fac.resize(m + 1);

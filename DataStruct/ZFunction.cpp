@@ -1,4 +1,4 @@
-std::vector<int> Zfunction(std::string& s) {
+std::vector<int> Zfunction(std::string_view s) {
     const int n = s.length();
     std::vector<int> z(n);
     for (int i = 1, l = 0, r = 0; i < n; i++) {
