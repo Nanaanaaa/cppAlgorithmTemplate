@@ -1,16 +1,21 @@
-std::vector<int> manacher(const std::string& s) {
-    const int n = s.size();
-    std::vector<int> d(n);
-    for (int i = 0, l = 0, r = -1; i < n; i++) {
-        int k = (i > r) ? 1 : std::min(d[l + r - i], r - i + 1);
-        while (0 <= i - k && i + k < n && s[i - k] == s[i + k]) {
-            k++;
+std::vector<int> manacher(std::string_view s) {
+    std::string t = "#";
+    for (auto c : s) {
+        t += c;
+        t += '#';
+    }
+    int n = t.size();
+    std::vector<int> r(n);
+    for (int i = 0, j = 0; i < n; i++) {
+        if (2 * j - i >= 0 && j + r[j] > i) {
+            r[i] = std::min(r[2 * j - i], j + r[j] - i);
         }
-        d[i] = k--;
-        if (i + k > r) {
-            l = i - k;
-            r = i + k;
+        while (i - r[i] >= 0 && i + r[i] < n && t[i - r[i]] == t[i + r[i]]) {
+            r[i] += 1;
+        }
+        if (i + r[i] > j + r[j]) {
+            j = i;
         }
     }
-    return d;
+    return r;
 }
