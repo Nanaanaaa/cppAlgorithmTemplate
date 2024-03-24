@@ -57,7 +57,7 @@ public:
         return x;
     }
     constexpr Proxy operator[](int i) {
-        return Proxy{ *this, i };
+        return Proxy{ *this, i + 1 };
     }
     constexpr T operator() (int x) {
         return sum(x + 1);
