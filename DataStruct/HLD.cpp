@@ -76,20 +76,21 @@ struct HLD {
         if (dep[u] < k) {
             return -1;
         }
-
         int d = dep[u] - k;
-
         while (dep[top[u]] > d) {
             u = parent[top[u]];
         }
-
         return seq[in[u] - dep[u] + d];
     }
 
     bool isAncester(int u, int v) {
         return in[u] <= in[v] && in[v] < out[u];
     }
-
+    int directChild(int u, int v) {
+        return *std::prev(std::upper_bound(adj[u].begin(), adj[u].end(), v, [&](int x, int y) {
+            return in[x] < in[y];
+        }));
+    }
     int rootedParent(int u, int v) {
         std::swap(u, v);
         if (u == v) {
