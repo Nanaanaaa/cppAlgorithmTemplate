@@ -1,7 +1,7 @@
 struct SuffixArray {
     const int n;
     std::vector<int> sa, rk, lc;
-    SuffixArray(const std::string& s) :n(s.size()) {
+    SuffixArray(std::string_view s) :n(s.size()) {
         sa.resize(n);
         lc.resize(n - 1);
         rk.resize(n);
@@ -53,6 +53,9 @@ struct SuffixArray {
                 lc[rk[i] - 1] = j;
             }
         }
+    }
+    constexpr int operator[](int i) const {
+        return sa[i];
     }
 };
 template<class T, class Cmp = std::less<T>>
@@ -125,7 +128,7 @@ struct RMQ {
         }
         else {
             int x = B * (l / B);
-            return ini[__builtin_ctzll(stk[r - 1] >> (l - x)) + l];
+            return ini[std::countr_zero(stk[r - 1] >> (l - x)) + l];
         }
     }
 };
