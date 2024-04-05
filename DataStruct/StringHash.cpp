@@ -1,4 +1,4 @@
-std::mt19937 rnd(std::chrono::steady_clock::now().time_since_epoch().count());
+\std::mt19937 rnd(std::chrono::steady_clock::now().time_since_epoch().count());
 
 struct StringHash {
     constexpr static int P1 = 998244351, P2 = 998244353;
