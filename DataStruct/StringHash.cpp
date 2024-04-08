@@ -29,10 +29,8 @@ struct StringHash {
         }
     }
     std::pair<int, int> get(int l, int r) { // 0开头 左闭右开
-        int res1 = (h1[r] - 1LL * h1[l] * p1[r - l] % P1) % P1;
-        if (res1 < 0) res1 += P1;
-        int res2 = (h2[r] - 1LL * h2[l] * p2[r - l] % P2) % P2;
-        if (res2 < 0) res2 += P2;
+        int res1 = (h1[r] - 1LL * h1[l] * p1[r - l] % P1 + P1) % P1;
+        int res2 = (h2[r] - 1LL * h2[l] * p2[r - l] % P2 + P2) % P2;
         return { res1, res2 };
     }
 
@@ -42,10 +40,8 @@ struct StringHash {
     bool isPalindrom(int l, int r) {
         auto t = get(l, r);
         std::tie(l, r) = std::pair(n - r, n - l);
-        int res1 = (r1[r] - 1LL * r1[l] * p1[r - l] % P1) % P1;
-        if (res1 < 0) res1 += P1;
-        int res2 = (r2[r] - 1LL * r2[l] * p2[r - l] % P2) % P2;
-        if (res2 < 0) res2 += P2;
+        int res1 = (r1[r] - 1LL * r1[l] * p1[r - l] % P1 + P1) % P1;
+        int res2 = (r2[r] - 1LL * r2[l] * p2[r - l] % P2 + P2) % P2;
         return std::pair(res1, res2) == t;
     }
 };
