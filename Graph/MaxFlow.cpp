@@ -1,3 +1,4 @@
+constexpr int inf = 1E9;
 template<class T>
 struct MaxFlow {
     struct _Edge {
@@ -8,7 +9,7 @@ struct MaxFlow {
 
     int n;
     std::vector<_Edge> e;
-    std::vector<std::vector<int>> adj;
+    std::vector<std::vector<int>> g;
     std::vector<int> cur, h;
 
     MaxFlow() {}
@@ -19,7 +20,7 @@ struct MaxFlow {
     void init(int n) {
         this->n = n;
         e.clear();
-        adj.assign(n, {});
+        g.assign(n, {});
         cur.resize(n);
         h.resize(n);
     }
@@ -32,7 +33,7 @@ struct MaxFlow {
         while (!que.empty()) {
             const int u = que.front();
             que.pop();
-            for (int i : adj[u]) {
+            for (int i : g[u]) {
                 auto [v, c] = e[i];
                 if (c > 0 && h[v] == -1) {
                     h[v] = h[u] + 1;
@@ -51,8 +52,8 @@ struct MaxFlow {
             return f;
         }
         auto r = f;
-        for (int &i = cur[u]; i < int(adj[u].size()); i++) {
-            const int j = adj[u][i];
+        for (int& i = cur[u]; i < int(g[u].size()); ++i) {
+            const int j = g[u][i];
             auto [v, c] = e[j];
             if (c > 0 && h[v] == h[u] + 1) {
                 auto a = dfs(v, t, std::min(r, c));
@@ -67,9 +68,9 @@ struct MaxFlow {
         return f - r;
     }
     void addEdge(int u, int v, T c) {
-        adj[u].push_back(e.size());
+        g[u].push_back(e.size());
         e.emplace_back(v, c);
-        adj[v].push_back(e.size());
+        g[v].push_back(e.size());
         e.emplace_back(u, 0);
     }
     T flow(int s, int t) {

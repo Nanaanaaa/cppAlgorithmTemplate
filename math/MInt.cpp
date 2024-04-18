@@ -115,3 +115,9 @@ struct MInt {
         return lhs.val() < rhs.val();
     }
 };
+
+template<>
+i64 MInt<0>::Mod = 998244353;
+
+constexpr int P = 1000000007;
+using Z = MInt<P>;

@@ -1,139 +1,119 @@
-struct Blossom {
-    const int n;
-
-    std::vector<std::pair<int, int>> e;
-    std::vector<std::vector<int>> g;
-
-    Blossom(int n) :n(n), g(n) {}
-
-    int addEdge(int u, int v) {
-        int id = e.size();
-        g[u].push_back(id);
-        g[v].push_back(id);
-        e.emplace_back(u, v);
-        return id;
+struct Graph {
+    int n;
+    std::vector<std::vector<int>> e;
+    Graph(int n) : n(n), e(n) {}
+    void addEdge(int u, int v) {
+        e[u].push_back(v);
+        e[v].push_back(u);
     }
+    std::vector<int> findMatching() {
+        std::vector<int> match(n, -1), vis(n), link(n), f(n), dep(n);
 
-    std::vector<int> matching() {
-        std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
-        std::vector<int> match(n, -1);// 匹配
-        std::vector<int> dfn(n, -1);
-        std::vector<int> label(n); // 「o」或「i」
-        std::vector<int> orig(n); // 花根
-        std::vector<int> fa(n, -1);
-        std::queue<int> q;
-        int cur = -1;
+        // disjoint set union
+        auto find = [&](int u) {
+            while (f[u] != u)
+                u = f[u] = f[f[u]];
+            return u;
+        };
 
         auto lca = [&](int u, int v) {
-            cur++;
-            while (true) {
-                if (u != -1) {
-                    if (dfn[u] == cur) {  // 找到拜访过的点 也就是LCA
-                        return u;
-                    }
-                    dfn[u] = cur;
-                    if (match[u] == -1) {
-                        u = -1;
-                    }
-                    else {
-                        u = orig[fa[match[u]]];  // 以匹配点的父节点继续寻找
-                    }
-                }
-                std::swap(u, v);
+            u = find(u);
+            v = find(v);
+            while (u != v) {
+                if (dep[u] < dep[v])
+                    std::swap(u, v);
+                u = find(link[match[u]]);
             }
-        };  // lca
+            return u;
+        };
 
-        auto blossom = [&](int u, int v, int a) {
-            while (orig[u] != a) {
-                fa[u] = v;
+        std::queue<int> que;
+        auto blossom = [&](int u, int v, int p) {
+            while (find(u) != p) {
+                link[u] = v;
                 v = match[u];
-                if (label[v] == 1) {  // 初始点设为"o" 找增广路
-                    label[v] = 0;
-                    q.push(v);
+                if (vis[v] == 0) {
+                    vis[v] = 1;
+                    que.push(v);
                 }
-                orig[u] = orig[v] = a;  // 缩花
-                u = fa[v];
+                f[u] = f[v] = p;
+                u = link[v];
             }
-        };  // blossom
+        };
 
+        // find an augmenting path starting from u and augment (if exist)
         auto augment = [&](int u) {
-            while (u != -1) {
-                int pv = fa[u];
-                int next_v = match[pv];
-                match[u] = pv;
-                match[pv] = u;
-                u = next_v;
-            }
-        };  // augment
 
-        auto bfs = [&](int root) {
-            std::fill(label.begin(), label.end(), -1);
-            std::iota(orig.begin(), orig.end(), 0);
-            q = std::queue<int>();
+            while (!que.empty())
+                que.pop();
 
-            q.push(root);
-            // 初始点设为 "o", 这里以"0"代替"o", "1"代替"i"
-            label[root] = 0;
-            while (!q.empty()) {
-                int u = q.front();
-                q.pop();
-                for (int id : g[u]) {
-                    auto [from, to] = e[id];
-                    int v = from ^ to ^ u;
-                    if (label[v] == -1) {  // 找到未拜访点
-                        label[v] = 1;        // 标记 "i"
-                        fa[v] = u;
-                        if (match[v] == -1) {  // 找到未匹配点
-                            augment(v);          // 寻找增广路径
-                            return true;
+            std::iota(f.begin(), f.end(), 0);
+
+            // vis = 0 corresponds to inner vertices, vis = 1 corresponds to outer vertices
+            std::fill(vis.begin(), vis.end(), -1);
+
+            que.push(u);
+            vis[u] = 1;
+            dep[u] = 0;
+
+            while (!que.empty()) {
+                int u = que.front();
+                que.pop();
+                for (auto v : e[u]) {
+                    if (vis[v] == -1) {
+
+                        vis[v] = 0;
+                        link[v] = u;
+                        dep[v] = dep[u] + 1;
+
+                        // found an augmenting path
+                        if (match[v] == -1) {
+                            for (int x = v, y = u, temp; y != -1; x = temp, y = x == -1 ? -1 : link[x]) {
+                                temp = match[y];
+                                match[x] = y;
+                                match[y] = x;
+                            }
+                            return;
                         }
-                        // 找到已匹配点 将与她匹配的点丢入queue 延伸交错树
-                        label[match[v]] = 0;
-                        q.push(match[v]);
-                        continue;
+
+                        vis[match[v]] = 1;
+                        dep[match[v]] = dep[u] + 2;
+                        que.push(match[v]);
+
                     }
-                    else if (label[v] == 0 && orig[u] != orig[v]) {
-                        // 找到已拜访点 且标记同为"o" 代表找到"花"
-                        int a = lca(orig[u], orig[v]);
-                        // 找LCA 然后缩花
-                        blossom(v, u, a);
-                        blossom(u, v, a);
+                    else if (vis[v] == 1 && find(v) != find(u)) {
+                        // found a blossom
+                        int p = lca(u, v);
+                        blossom(u, v, p);
+                        blossom(v, u, p);
                     }
                 }
             }
-            return false;
-        };  // bfs
 
+        };
+
+        // find a maximal matching greedily (decrease constant)
         auto greedy = [&]() {
-            std::vector<int> order(n);
-            // 随机打乱 order
-            std::iota(order.begin(), order.end(), 0);
-            std::shuffle(order.begin(), order.end(), rng);
 
-            // 将可以匹配的点匹配
-            for (int i : order) {
-                if (match[i] == -1) {
-                    for (auto id : g[i]) {
-                        auto [from, to] = e[id];
-                        to ^= from ^ i;
-                        if (match[to] == -1) {
-                            match[i] = to;
-                            match[to] = i;
-                            break;
-                        }
+            for (int u = 0; u < n; ++u) {
+                if (match[u] != -1)
+                    continue;
+                for (auto v : e[u]) {
+                    if (match[v] == -1) {
+                        match[u] = v;
+                        match[v] = u;
+                        break;
                     }
                 }
             }
-        };  // greedy
+        };
 
-        // 一开始先随机匹配
         greedy();
-        // 对未匹配点找增广路
-        for (int i = 0; i < n; i++) {
-            if (match[i] == -1) {
-                bfs(i);
-            }
-        }
+
+        for (int u = 0; u < n; ++u)
+            if (match[u] == -1)
+                augment(u);
+
         return match;
     }
 };

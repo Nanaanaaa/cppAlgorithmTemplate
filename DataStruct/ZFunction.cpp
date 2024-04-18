@@ -1,19 +1,14 @@
-std::vector<int> Zfunction(std::string_view s) {
-    const int n = s.length();
-    std::vector<int> z(n);
-    for (int i = 1, l = 0, r = 0; i < n; i++) {
-        if (i <= r && z[i - l] < r - i + 1) {
-            z[i] = z[i - l];
+std::vector<int> zFunction(std::string_view s) {
+    const int n = s.size();
+    std::vector<int> z(n + 1);
+    z[0] = n;
+    for (int i = 1, j = 1; i < n; i++) {
+        z[i] = std::max(0, std::min(j + z[j] - i, z[i - j]));
+        while (i + z[i] < n && s[z[i]] == s[i + z[i]]) {
+            z[i]++;
         }
-        else {
-            z[i] = std::max(0, r - i + 1);
-            while (i + z[i] < n && s[z[i]] == s[i + z[i]]) {
-                z[i]++;
-            }
-        }
-        if (i + z[i] - 1 > r) {
-            l = i;
-            r = i + z[i] - 1;
+        if (i + z[i] > j + z[j]) {
+            j = i;
         }
     }
     return z;
