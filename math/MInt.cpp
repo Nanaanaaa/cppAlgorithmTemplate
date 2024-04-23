@@ -1,19 +1,19 @@
 template<class T>
-constexpr T power(T a, i64 b) {
+constexpr T power(T base, i64 exp) {
     T res{ 1 };
-    for (; b; b /= 2, a *= a) {
-        if (b % 2) {
-            res *= a;
+    for (; exp; exp /= 2, base *= base) {
+        if (exp % 2) {
+            res *= base;
         }
     }
     return res;
 }
 
-constexpr i64 mul(i64 a, i64 b, i64 p) {
-    i64 res = a * b - i64(1.L * a * b / p) * p;
-    res %= p;
+constexpr i64 mul(i64 base, i64 exp, i64 mod) {
+    i64 res = base * exp - i64(1.L * base * exp / mod) * mod;
+    res %= mod;
     if (res < 0) {
-        res += p;
+        res += mod;
     }
     return res;
 }
@@ -28,8 +28,7 @@ struct MInt {
     constexpr static i64 getMod() {
         if (P > 0) {
             return P;
-        }
-        else {
+        } else {
             return Mod;
         }
     }
@@ -59,8 +58,7 @@ struct MInt {
     constexpr MInt& operator*=(MInt rhs)& {
         if (getMod() < (1ULL << 31)) {
             x = x * rhs.x % int(getMod());
-        }
-        else {
+        } else {
             x = mul(x, rhs.x, getMod());
         }
         return *this;
