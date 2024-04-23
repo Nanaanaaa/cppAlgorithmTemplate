@@ -1,11 +1,11 @@
-i64 phi(i64 n) {
-    i64 res = n;
-    for (int i = 2; i <= n / i; i++) {
+int phi(int n) {
+    int res = n;
+    for (int i = 2; i * i <= n; i++) {
         if (n % i == 0) {
-            res = res / i * (i - 1);
             while (n % i == 0) {
                 n /= i;
             }
+            res = res / i * (i - 1);
         }
     }
     if (n > 1) {
