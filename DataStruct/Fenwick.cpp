@@ -46,12 +46,13 @@ public:
     T rangeSum(int l, int r) {
         return sum(r) - sum(l);
     }
-    int kth(T k) {
+    int kth(const T& k) {
         int x = 0;
+        T cur{};
         for (int i = 1 << std::__lg(n); i; i /= 2) {
-            if (x + i <= n && k >= tr[x + i - 1]) {
+            if (x + i <= n && cur + tr[x + i - 1] <= k) {
                 x += i;
-                k -= tr[x - 1];
+                cur = cur + tr[x - 1];
             }
         }
         return x;
