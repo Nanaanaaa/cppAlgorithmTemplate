@@ -1,6 +1,5 @@
-template<class T,
-    class Cmp = std::less<T>>
-    struct RMQ {
+template<class T, class Cmp = std::less<T>>
+struct RMQ {
     const Cmp cmp = Cmp();
     static constexpr unsigned B = 64;
     using u64 = unsigned long long;
@@ -66,10 +65,9 @@ template<class T,
                 ans = std::min({ ans, a[k][l], a[k][r - (1 << k)] }, cmp);
             }
             return ans;
-        }
-        else {
+        } else {
             int x = B * (l / B);
-            return ini[__builtin_ctzll(stk[r - 1] >> (l - x)) + l];
+            return ini[std::countr_zero(stk[r - 1] >> (l - x)) + l];
         }
     }
 };
