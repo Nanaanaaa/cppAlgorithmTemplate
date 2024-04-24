@@ -24,13 +24,13 @@ struct Block {
         }
     }
     constexpr void add(int l, int r, const T& v) {
+        r--;
         if (bel[l] == bel[r]) {
             for (int i = l; i <= r; i++) {
                 a[i] += v;
                 sum[bel[i]] += v;
             }
-        }
-        else {
+        } else {
             int i = l, j = r;
             for (; bel[i] == bel[l]; i++) {
                 a[i] += v;
@@ -47,16 +47,16 @@ struct Block {
         }
     }
     constexpr void add(int x, const T& v) {
-        return add(x, x, v);
+        return add(x, x + 1, v);
     }
     constexpr i64 query(int l, int r) {
+        r--;
         i64 ans = 0;
         if (bel[l] == bel[r]) {
             for (int i = l; i <= r; i++) {
                 ans += a[i] + tag[bel[i]];
             }
-        }
-        else {
+        } else {
             int i = l, j = r;
             for (; bel[i] == bel[l]; i++) {
                 ans += a[i] + tag[bel[i]];
@@ -70,7 +70,10 @@ struct Block {
         }
         return ans;
     }
-    constexpr i64 query(int x) {
-        return query(x, x);
+    constexpr int operator[](int x) {
+        return query(x, x + 1);
+    }
+    constexpr int operator()(int l, int r) {
+        return query(l, r);
     }
 };
