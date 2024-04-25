@@ -1,6 +1,5 @@
 // assume -P <= x < 2P
-constexpr int P = ;
-
+constexpr int P = 998244353;
 int norm(int x) {
     if (x < 0) { x += P; }
     if (x >= P) { x -= P; }
