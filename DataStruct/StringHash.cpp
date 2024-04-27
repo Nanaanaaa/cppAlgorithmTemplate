@@ -1,5 +1,3 @@
-std::mt19937 rnd(std::chrono::steady_clock::now().time_since_epoch().count());
-
 constexpr bool isprime(int n) {
     if (n <= 1) {
         return false;
@@ -47,6 +45,12 @@ struct StringHash {
     }
     constexpr bool isPalindrom(int x, int y) {
         return (r[n - x] + 1LL * (P - r[n - y]) * p[y - x]) % P == get(x, y);
+    }
+    constexpr bool operator()(int l, int r) {
+        return isPalindrom(l, r);
+    }
+    constexpr bool operator()(int a, int b, int c, int d) {
+        return same(a, b, c, d);
     }
 };
 const int StringHash::P = findPrime(rnd() % 900000000 + 100000000);
