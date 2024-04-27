@@ -29,7 +29,7 @@ public:
         return t.size() - 1;
     }
 
-    int add(const std::vector<int>& a) {
+    int add(std::span<int> a) {
         int p = 1;
         for (auto x : a) {
             if (t[p][x] == 0) {
@@ -42,7 +42,7 @@ public:
         return p;
     }
 
-    int add(const std::string& a, char offset = 'a') {
+    int add(std::string_view a, char offset = 'a') {
         std::vector<int> b(a.size());
         for (int i = 0; i < a.size(); i++) {
             b[i] = a[i] - offset;
@@ -57,8 +57,7 @@ public:
             for (int i = 0; i < A; i++) {
                 if (t[x][i] == 0) {
                     t[x][i] = t[t[x].link][i];
-                }
-                else {
+                } else {
                     t[t[x][i]].link = t[t[x].link][i];
                     q.push_back(t[x][i]);
                 }
@@ -97,11 +96,7 @@ public:
     constexpr int& operator[](int p) {
         return t[p].link;
     }
-    constexpr void operator+=(const std::string& s) {
-        add(s);
-    }
-    constexpr void operator>>(std::string& s) {
-        std::cin >> s;
+    constexpr void operator+=(std::string_view s) {
         add(s);
     }
 };
