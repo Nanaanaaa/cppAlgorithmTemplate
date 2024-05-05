@@ -1,4 +1,4 @@
-std::vector<int> zFunction(std::string_view s) {
+std::vector<int> ZFunction(std::string_view s) {
     const int n = s.size();
     std::vector<int> z(n + 1);
     z[0] = n;
