@@ -44,7 +44,7 @@ struct StringHash {
         return get(x, y) == get(l, r);
     }
     constexpr bool isPalindrom(int x, int y) {
-        return (r[n - x] + 1LL * (P - r[n - y]) * p[y - x] % P) % P == get(x, y);
+        return (r[n - x] + 1LL * (P - r[n - y]) * p[y - x]) % P == get(x, y);
     }
     constexpr int operator()(int l, int r) {
         return get(l, r);
