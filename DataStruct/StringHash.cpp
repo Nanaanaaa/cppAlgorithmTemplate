@@ -18,7 +18,7 @@ constexpr int findPrime(int n) {
 }
 
 struct StringHash {
-    const static int P;
+    const static int P, B;
     int n;
     std::vector<int> h, p, r;
     StringHash() {}
@@ -31,9 +31,9 @@ struct StringHash {
         h.assign(n + 1, 0);
         r.assign(n + 1, 0);
         for (int i = 0; i < n; i++) {
-            p[i + 1] = 10LL * p[i] % P;
-            h[i + 1] = (10LL * h[i] + s[i]) % P;
-            r[i + 1] = (10LL * r[i] + s[n - 1 - i]) % P;
+            p[i + 1] = 1LL * B * p[i] % P;
+            h[i + 1] = (1LL * B * h[i] + s[i]) % P;
+            r[i + 1] = (1LL * B * r[i] + s[n - 1 - i]) % P;
         }
     }
 
@@ -44,13 +44,15 @@ struct StringHash {
         return get(x, y) == get(l, r);
     }
     constexpr bool isPalindrom(int x, int y) {
-        return (r[n - x] + 1LL * (P - r[n - y]) * p[y - x]) % P == get(x, y);
+        return (r[n - x] + 1LL * (P - r[n - y]) * p[y - x] % P) % P == get(x, y);
     }
-    constexpr bool operator()(int l, int r) {
-        return isPalindrom(l, r);
+    constexpr int operator()(int l, int r) {
+        return get(l, r);
     }
     constexpr bool operator()(int a, int b, int c, int d) {
         return same(a, b, c, d);
     }
 };
+std::mt19937 rnd(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 const int StringHash::P = findPrime(rnd() % 900000000 + 100000000);
+const int StringHash::B = rnd() % P;

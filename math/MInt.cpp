@@ -1,3 +1,4 @@
+using i64 = int64_t;
 template<class T>
 constexpr T power(T base, i64 exp) {
     T res{ 1 };
