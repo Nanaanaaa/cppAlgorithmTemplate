@@ -6,8 +6,8 @@ private:
     struct Proxy {
         Fenwick<T>& fen{};
         int idx{};
-        constexpr T* operator->() {
-            return &fen;
+        constexpr T operator*() {
+            return val;
         }
         constexpr Proxy& operator+=(const T& v) {
             fen.add(idx, v);
@@ -58,7 +58,7 @@ public:
         return x;
     }
     constexpr Proxy operator[](int i) {
-        return Proxy{ *this, i + 1 };
+        return Proxy{ *this, i };
     }
     constexpr T operator() (int x) {
         return sum(x + 1);

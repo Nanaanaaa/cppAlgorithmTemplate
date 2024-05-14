@@ -118,6 +118,7 @@ struct LazySegmentTree {
     int findFirst(int l, int r, auto&& pred) {
         return findFirst(1, 0, n, l, r, pred);
     }
+
     int findLast(int p, int l, int r, int x, int y, auto&& pred) {
         if (l >= y || r <= x) {
             return -1;
