@@ -10,8 +10,7 @@ void modifyCol(int p, int l, int r, int x, const int& v, int t) {
     }
     if (x < m) {
         modifyCol(2 * p, l, m, x, v, t);
-    }
-    else {
+    } else {
         modifyCol(2 * p + 1, m, r, x, v, t);
     }
 }
@@ -101,7 +100,7 @@ int findFirstLower(int p, int l, int r, int x, int v) { //向左找第一个不�
     if (ret != -1) {
         return ret;
     }
-    return  findFirstLower(2 * p, l, m, x, v);
+    return findFirstLower(2 * p, l, m, x, v);
 }
 
 int findFirstUpper(int x, int v) {

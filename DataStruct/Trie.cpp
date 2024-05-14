@@ -1,6 +1,6 @@
-template<int A = 26>
 class Trie {
 protected:
+    constexpr static int A = 26;
     struct Node {
         std::array<int, A> next{};
         int siz = 0;
@@ -11,7 +11,6 @@ protected:
     };
     std::vector<Node> t;
 public:
-    using i64 = int64_t;
     Trie() {
         init();
     }
@@ -37,76 +36,23 @@ public:
     int& cnt(int p) {
         return t[p].cnt;
     }
-    void add(int& p, int d) {
-        if (t[p][d] == 0) {
-            t[p][d] = newNode();
-        }
-        p = t[p][d];
-        t[p].siz++;
-    }
-    void add(int x) {
-        int p = 1;
-        for (int i = 30; ~i; i--) {
-            bool d = x >> i & 1;
-            add(p, d);
-        }
-        t[p].cnt++;
-    }
 
-    void add(i64 x) {
-        int p = 1;
-        for (int i = 62; ~i; i--) {
-            bool d = x >> i & 1;
-            add(p, d);
-        }
-        t[p].cnt++;
-    }
-
-    void add(const std::string_view& s) {
+    void add(std::string_view s) {
         int p = 1;
         for (auto c : s) {
             int d = c - 'a';
-            add(p, d);
+            if (t[p][d] == 0) {
+                t[p][d] = newNode();
+            }
+            p = t[p][d];
+            t[p].siz++;
         }
         t[p].cnt++;
     }
-
-    int query(int x) {
-        int p = 1;
-        int res = 0;
-        for (int i = 30; ~i; i--) {
-            bool d = x >> i & 1;
-            if (t[p][!d]) {
-                res |= 1 << i;
-                p = t[p][!d];
-            }
-            else {
-                p = t[p][d];
-            }
-        }
-        return res;
-    }
-
-    i64 query(i64 x) {
-        int p = 1;
-        i64 res = 0;
-        for (int i = 62; ~i; i--) {
-            bool d = x >> i & 1;
-            if (t[p][!d]) {
-                res |= 1LL << i;
-                p = t[p][!d];
-            }
-            else {
-                p = t[p][d];
-            }
-        }
-        return res;
-    }
-
-    int query(const std::string_view& s) {
+    int query(std::string_view s, char offset = 'a') {
         int p = 1;
         for (auto c : s) {
-            int d = c - 'a';
+            int d = c - offset;
             p = t[p][d];
             if (p == 0) {
                 return 0;
@@ -115,10 +61,6 @@ public:
         return t[p].cnt;
     }
     template<class T> constexpr void operator+=(T& x) {
-        add(x);
-    }
-    template<class T> constexpr void operator>>(T& x) {
-        std::cin >> x;
         add(x);
     }
     template<class T> constexpr auto operator()(T& x) {

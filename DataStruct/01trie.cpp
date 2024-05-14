@@ -1,28 +1,102 @@
-struct Node {
-    Node* ch[2]{};
+class BinaryTrie {
+protected:
+    struct Node {
+        std::array<int, 2> next{};
+        int siz = 0;
+        int cnt = 0;
+        constexpr int& operator[](int x) {
+            return next[x];
+        }
+    };
+    std::vector<Node> t;
+public:
+    using i64 = int64_t;
+    Trie() {
+        init();
+    }
+    Trie(int __n) {
+        t.reserve(__n);
+        init();
+    }
+    ~Trie() {
+        t.clear();
+        t.shrink_to_fit();
+    }
+    void init() {
+        t.assign(2, Node());
+        t[0].next.fill(1);
+    }
+    int newNode() {
+        t.emplace_back();
+        return t.size() - 1;
+    }
+    int& siz(int p) {
+        return t[p].siz;
+    }
+    int& cnt(int p) {
+        return t[p].cnt;
+    }
+    void add(int& p, int d) {
+        if (t[p][d] == 0) {
+            t[p][d] = newNode();
+        }
+        p = t[p][d];
+        t[p].siz++;
+    }
 
     void add(int x) {
-        Node* t = this;
+        int p = 1;
         for (int i = 30; ~i; i--) {
-            if (t->ch[x >> i & 1] == nullptr) {
-                t->ch[x >> i & 1] = new Node;
-            }
-            t = t->ch[x >> i & 1];
+            bool d = x >> i & 1;
+            add(p, d);
         }
+        t[p].cnt++;
+    }
+
+    void add(i64 x) {
+        int p = 1;
+        for (int i = 62; ~i; i--) {
+            bool d = x >> i & 1;
+            add(p, d);
+        }
+        t[p].cnt++;
     }
 
     int query(int x) {
-        Node* t = this;
+        int p = 1;
         int res = 0;
         for (int i = 30; ~i; i--) {
-            if (t->ch[~x >> i & 1] != nullptr) {
+            bool d = x >> i & 1;
+            if (t[p][!d]) {
                 res |= 1 << i;
-                t = t->ch[~x >> i & 1];
+                p = t[p][!d];
+            } else {
+                p = t[p][d];
             }
-            else {
-                t = t->ch[x >> i & 1];
+
+        }
+        return res;
+    }
+
+    i64 query(i64 x) {
+        int p = 1;
+        i64 res = 0;
+        for (int i = 62; ~i; i--) {
+            bool d = x >> i & 1;
+            if (t[p][!d]) {
+                res |= 1LL << i;
+                p = t[p][!d];
+            } else {
+                p = t[p][d];
             }
         }
         return res;
+    }
+
+    template<class T> constexpr void operator+=(T& x) {
+        add(x);
+    }
+    template<class T> constexpr auto operator()(T& x) {
+        return query(x);
     }
 };

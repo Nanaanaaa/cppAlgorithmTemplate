@@ -1,6 +1,5 @@
 template <class Info>
 struct SegmentTree {
-#define m (l + r) / 2
     int n;
     std::vector<Info> tr;
     SegmentTree() : n(0) {}
@@ -18,16 +17,17 @@ struct SegmentTree {
     void init(std::vector<T> init_) {
         n = init_.size();
         tr.assign(4 << std::__lg(n), Info());
-        std::function<void(int, int, int)> build = [&](int p, int l, int r) {
+        auto build = [&](auto&& self, int p, int l, int r) {
             if (r - l == 1) {
-                tr[p] = { init_[l] };
+                tr[p] = init_[l];
                 return;
             }
-            build(2 * p, l, m);
-            build(2 * p + 1, m, r);
+            int m = std::midpoint(l, r);
+            self(self, 2 * p, l, m);
+            self(self, 2 * p + 1, m, r);
             pull(p);
         };
-        build(1, 0, n);
+        build(build, 1, 0, n);
     }
 
     void pull(int p) {
@@ -39,10 +39,10 @@ struct SegmentTree {
             tr[p] = v;
             return;
         }
+        int m = std::midpoint(l, r);
         if (x < m) {
             modify(2 * p, l, m, x, v);
-        }
-        else {
+        } else {
             modify(2 * p + 1, m, r, x, v);
         }
         pull(p);
@@ -58,45 +58,59 @@ struct SegmentTree {
         if (l >= x && r <= y) {
             return tr[p];
         }
+        int m = std::midpoint(l, r);
         return rangeQuery(2 * p, l, m, x, y) + rangeQuery(2 * p + 1, m, r, x, y);
     }
     Info rangeQuery(int l, int r) {
         return rangeQuery(1, 0, n, l, r);
     }
 
-    int findFirst(int p, int l, int r, int x, int y, auto check) {
-        if (l >= y || r <= x || !check(tr[p])) {
+    template<class F>
+    int findFirst(int p, int l, int r, int x, int y, F&& pred) {
+        if (l >= y || r <= x) {
+            return -1;
+        }
+        if (l >= x && r <= y && !pred(tr[p])) {
             return -1;
         }
         if (r - l == 1) {
             return l;
         }
-        int res = findFirst(2 * p, l, m, x, y, check);
+        int m = std::midpoint(l, r);
+        int res = findFirst(2 * p, l, m, x, y, pred);
         if (res == -1) {
-            res = findFirst(2 * p + 1, m, r, x, y, check);
+            res = findFirst(2 * p + 1, m, r, x, y, pred);
         }
         return res;
     }
-    int findFirst(int x, int y, auto check) {
-        return findFirst(1, 0, n, x, y, check);
+    template<class F>
+    int findFirst(int x, int y, auto pred) {
+        return findFirst(1, 0, n, x, y, pred);
     }
 
-    int findLast(int p, int l, int r, int x, int y, auto check) {
-        if (l >= y || r <= x || !check(tr[p])) {
+    template<class F>
+    int findLast(int p, int l, int r, int x, int y, auto pred) {
+        if (l >= y || r <= x) {
+            return -1;
+        }
+        if (l >= x && r <= y && !pred(tr[p])) {
             return -1;
         }
         if (r - l == 1) {
             return l;
         }
-        int res = findLast(2 * p + 1, m, r, x, y, check);
+        int m = std::midpoint(l, r);
+        int res = findLast(2 * p + 1, m, r, x, y, pred);
         if (res == -1) {
-            res = findLast(2 * p, l, m, x, y, check);
+            res = findLast(2 * p, l, m, x, y, pred);
         }
         return res;
     }
-    int findLast(int x, int y, auto check) {
-        return findLast(1, 0, n, x, y, check);
+    template<class F>
+    int findLast(int x, int y, auto pred) {
+        return findLast(1, 0, n, x, y, pred);
     }
+
     struct Proxy {
         SegmentTree& seg{};
         int i = 0, j = 1;
@@ -105,8 +119,10 @@ struct SegmentTree {
         constexpr Info* operator->() {
             return &val;
         }
+        constexpr Info operator*() {
+            return val;
+        }
         constexpr Proxy& operator=(const Info& info) {
-            assert(j == i + 1);
             seg.modify(i, info);
             return *this;
         }
@@ -114,11 +130,7 @@ struct SegmentTree {
     constexpr Proxy operator[](int i) {
         return Proxy(*this, i, i + 1);
     }
-    constexpr Proxy operator()(int i) {
-        return Proxy(*this, i, i + 1);
+    constexpr Info operator()(int i, int j) {
+        return rangeQuery(i, j);
     }
-    constexpr Proxy operator()(int i, int j) {
-        return Proxy(*this, i, j);
-    }
-#undef m
 };
