@@ -65,8 +65,7 @@ struct SegmentTree {
         return rangeQuery(1, 0, n, l, r);
     }
 
-    template<class F>
-    int findFirst(int p, int l, int r, int x, int y, F&& pred) {
+    int findFirst(int p, int l, int r, int x, int y, auto&& pred) {
         if (l >= y || r <= x) {
             return -1;
         }
@@ -83,13 +82,11 @@ struct SegmentTree {
         }
         return res;
     }
-    template<class F>
-    int findFirst(int x, int y, auto pred) {
+    int findFirst(int x, int y, auto&& pred) {
         return findFirst(1, 0, n, x, y, pred);
     }
 
-    template<class F>
-    int findLast(int p, int l, int r, int x, int y, auto pred) {
+    int findLast(int p, int l, int r, int x, int y, auto&& pred) {
         if (l >= y || r <= x) {
             return -1;
         }
@@ -106,8 +103,7 @@ struct SegmentTree {
         }
         return res;
     }
-    template<class F>
-    int findLast(int x, int y, auto pred) {
+    int findLast(int x, int y, auto&& pred) {
         return findLast(1, 0, n, x, y, pred);
     }
 

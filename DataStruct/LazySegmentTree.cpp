@@ -21,7 +21,7 @@ struct LazySegmentTree {
         tag.assign(4 << std::__lg(n), Tag());
         auto build = [&](auto&& self, int p, int l, int r) {
             if (r - l == 1) {
-                tr[p] = { init_[l] };
+                tr[p] = init_[l];
                 return;
             }
             int m = std::midpoint(l, r);
@@ -97,8 +97,7 @@ struct LazySegmentTree {
         return rangeApply(1, 0, n, l, r, t);
     }
 
-    template<class F>
-    int findFirst(int p, int l, int r, int x, int y, F&& pred) {
+    int findFirst(int p, int l, int r, int x, int y, auto&& pred) {
         if (l >= y || r <= x) {
             return -1;
         }
@@ -116,12 +115,10 @@ struct LazySegmentTree {
         }
         return res;
     }
-    template<class F>
-    int findFirst(int l, int r, F&& pred) {
+    int findFirst(int l, int r, auto&& pred) {
         return findFirst(1, 0, n, l, r, pred);
     }
-    template<class F>
-    int findLast(int p, int l, int r, int x, int y, F&& pred) {
+    int findLast(int p, int l, int r, int x, int y, auto&& pred) {
         if (l >= y || r <= x) {
             return -1;
         }
@@ -139,8 +136,7 @@ struct LazySegmentTree {
         }
         return res;
     }
-    template<class F>
-    int findLast(int l, int r, F&& pred) {
+    int findLast(int l, int r, auto&& pred) {
         return findLast(1, 0, n, l, r, pred);
     }
 
