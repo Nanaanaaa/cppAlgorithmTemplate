@@ -1,4 +1,4 @@
-std::vector<int> kmp(std::string s) {
+std::vector<int> kmp(std::string_view s) {
     const int n = s.size();
     std::vector<int> f(n + 1);
     for (int i = 1, j = 0; i < n; i++) {
