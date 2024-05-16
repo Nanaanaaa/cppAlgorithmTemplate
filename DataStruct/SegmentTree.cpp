@@ -7,7 +7,7 @@ struct SegmentTree {
         init(n_, v_);
     }
     template<class T>
-    SegmentTree(std::vector<T> init_) {
+    explicit (std::vector<T> init_) {
         init(init_);
     }
     void init(int n_, Info v_ = Info()) {

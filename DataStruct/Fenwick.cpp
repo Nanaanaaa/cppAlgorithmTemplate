@@ -18,7 +18,7 @@ public:
     Fenwick(int n = 0) {
         init(n);
     }
-    Fenwick(const std::vector<T>& init_) {
+    explicit Fenwick(const std::vector<T>& init_) {
         init(init_);
     }
     void init(int n_) {
