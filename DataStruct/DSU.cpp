@@ -54,9 +54,9 @@ struct DSU {
         for (int i = 0; i < _n; i++) {
             ans[p[i]].push_back(i);
         }
-        ans.erase(ans.begin(), ans.end(), [&](const std::vector<int>& v) {
+        ans.erase(std::remove_if(ans.begin(), ans.end(), [&](const std::vector<int>& v) {
             return v.empty();
-        });
+        }), ans.end());
         return ans;
     }
 
