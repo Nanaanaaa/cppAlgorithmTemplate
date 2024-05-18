@@ -4,7 +4,7 @@ struct SparseTable {
     const int lg;
     Merge merge = Merge();
     std::vector<std::vector<int>> f;
-    ST(const std::vector<int>& a) :n(a.size()), lg(std::__lg(n)), f(n) {
+    SparseTable(const std::vector<int>& a) :n(a.size()), lg(std::__lg(n)), f(n) {
         for (int i = 0; i < n; i++) {
             f[i].resize(lg + 1);
             f[i][0] = a[i];
