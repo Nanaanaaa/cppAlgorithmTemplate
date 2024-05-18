@@ -1,5 +1,5 @@
 template<class Merge>
-struct ST {
+struct SparseTable {
     const int n;
     const int lg;
     Merge merge = Merge();
