@@ -42,7 +42,7 @@ struct DSU {
     }
 
     std::vector<std::vector<int>> groups() {
-        std::vector<int> p(_n), std::vector<int> psize(_n);
+        std::vector<int> p(_n), psize(_n);
         for (int i = 0; i < _n; i++) {
             p[i] = find(i);
             psize[p[i]]++;
