@@ -62,6 +62,9 @@ struct Z {
         res /= rhs;
         return res;
     }
+    friend constexpr bool operator==(Z lhs, Z rhs) {
+        return lhs.val() == rhs.val();
+    }
     friend std::istream& operator>>(std::istream& is, Z& a) {
         i64 v;
         is >> v;
