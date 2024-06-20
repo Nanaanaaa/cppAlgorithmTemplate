@@ -1,4 +1,3 @@
-using i64 = int64_t;
 template<class T>
 constexpr T power(T base, i64 exp) {
     T res{ 1 };
@@ -112,6 +111,9 @@ struct MInt {
     }
     friend constexpr bool operator<(MInt lhs, MInt rhs) {
         return lhs.val() < rhs.val();
+    }
+    friend constexpr MInt operator^(MInt lhs, i64 rhs) {
+        return power(lhs, rhs);
     }
 };
 
