@@ -45,11 +45,8 @@ struct SuffixArray {
         for (int i = 0, j = 0; i < n; i++) {
             if (rk[i] == 0) {
                 j = 0;
-            }
-            else {
-                for (j -= j > 0; i + j < n && sa[rk[i] - 1] + j < n && s[i + j] == s[sa[rk[i] - 1] + j]; ) {
-                    j++;
-                }
+            } else {
+                for (j -= j > 0; i + j < n && sa[rk[i] - 1] + j < n && s[i + j] == s[sa[rk[i] - 1] + j]; j++);
                 lc[rk[i] - 1] = j;
             }
         }
@@ -125,8 +122,7 @@ struct RMQ {
                 ans = std::min({ ans, a[k][l], a[k][r - (1 << k)] }, cmp);
             }
             return ans;
-        }
-        else {
+        } else {
             int x = B * (l / B);
             return ini[std::countr_zero(stk[r - 1] >> (l - x)) + l];
         }
