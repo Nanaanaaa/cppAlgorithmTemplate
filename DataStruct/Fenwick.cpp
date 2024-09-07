@@ -1,3 +1,7 @@
+int lg(unsigned int x) {
+    return std::bit_width(x) - 1;
+}
+
 template<typename T = int>
 class Fenwick {
 private:
@@ -6,17 +10,37 @@ private:
     struct Proxy {
         Fenwick<T>& fen{};
         int idx{};
-        constexpr T operator*() {
-            return val;
-        }
         constexpr Proxy& operator+=(const T& v) {
             fen.add(idx, v);
             return *this;
         }
+        constexpr Proxy& operator-=(const T& v) {
+            fen.add(idx, -v);
+            return *this;
+        }
+        constexpr Proxy& operator++() {
+            fen.add(idx, 1);
+            return *this;
+        }
+        constexpr Proxy& operator++(int) {
+            fen.add(idx, 1);
+            return *this;
+        }
+        constexpr Proxy& operator--() {
+            fen.add(idx, -1);
+            return *this;
+        }
+        constexpr Proxy& operator--(int) {
+            fen.add(idx, -1);
+            return *this;
+        }
     };
 public:
-    Fenwick(int n = 0) {
+    explicit Fenwick(int n = 0, const T& init_ = T()) {
         init(n);
+        for (int i = 0; i < n; i++) {
+            add(i, init_);
+        }
     }
     explicit Fenwick(const std::vector<T>& init_) {
         init(init_);
@@ -46,10 +70,10 @@ public:
     T rangeSum(int l, int r) {
         return sum(r) - sum(l);
     }
-    int kth(const T& k) {
+    int find(const T& k) {
         int x = 0;
         T cur{};
-        for (int i = 1 << std::__lg(n); i; i /= 2) {
+        for (int i = 1 << lg(n); i; i /= 2) {
             if (x + i <= n && cur + tr[x + i - 1] <= k) {
                 x += i;
                 cur = cur + tr[x - 1];
@@ -60,8 +84,8 @@ public:
     constexpr Proxy operator[](int i) {
         return Proxy{ *this, i };
     }
-    constexpr T operator() (int x) {
-        return sum(x + 1);
+    constexpr T operator() (int r) {
+        return sum(r);
     }
     constexpr T operator() (int l, int r) {
         return rangeSum(l, r);

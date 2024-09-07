@@ -1,3 +1,7 @@
+int lg(unsigned int x) {
+    return std::bit_width(x) - 1;
+}
+
 template <class Info, class Tag>
 struct LazySegmentTree {
     int n;
@@ -17,8 +21,8 @@ struct LazySegmentTree {
     template<class T>
     void init(std::vector<T> init_) {
         n = init_.size();
-        tr.assign(4 << std::__lg(n), Info());
-        tag.assign(4 << std::__lg(n), Tag());
+        tr.assign(4 << lg(n), Info());
+        tag.assign(4 << lg(n), Tag());
         auto build = [&](auto&& self, int p, int l, int r) {
             if (r - l == 1) {
                 tr[p] = init_[l];
@@ -101,7 +105,7 @@ struct LazySegmentTree {
         if (l >= y || r <= x) {
             return -1;
         }
-        if (l >= x && r <= y && !pred(info[p])) {
+        if (l >= x && r <= y && !pred(tr[p])) {
             return -1;
         }
         if (r - l == 1) {
@@ -123,7 +127,7 @@ struct LazySegmentTree {
         if (l >= y || r <= x) {
             return -1;
         }
-        if (l >= x && r <= y && !pred(info[p])) {
+        if (l >= x && r <= y && !pred(tr[p])) {
             return -1;
         }
         if (r - l == 1) {

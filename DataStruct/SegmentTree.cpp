@@ -1,3 +1,7 @@
+int lg(unsigned int x) {
+    return std::bit_width(x) - 1;
+}
+
 template <class Info>
 struct SegmentTree {
     int n;
@@ -7,7 +11,7 @@ struct SegmentTree {
         init(n_, v_);
     }
     template<class T>
-    explicit (std::vector<T> init_) {
+    explicit SegmentTree(std::vector<T> init_) {
         init(init_);
     }
     void init(int n_, Info v_ = Info()) {
@@ -16,7 +20,7 @@ struct SegmentTree {
     template<class T>
     void init(std::vector<T> init_) {
         n = init_.size();
-        tr.assign(4 << std::__lg(n), Info());
+        tr.assign(4 << lg(n), Info());
         auto build = [&](auto&& self, int p, int l, int r) {
             if (r - l == 1) {
                 tr[p] = init_[l];

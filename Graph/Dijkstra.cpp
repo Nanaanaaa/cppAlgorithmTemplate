@@ -19,5 +19,6 @@ std::vector<T> dijkstra(int s, const auto& adj, T init_ = -1) {
             q.emplace(d + w, v);
         }
     }
+    
     return dis;
 }

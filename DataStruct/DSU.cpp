@@ -1,9 +1,9 @@
 struct DSU {
-    int _n;
+    int n;
     std::vector<int> f, siz;
 
-    DSU() :_n(0) {}
-    explicit DSU(int n) :_n(n) {
+    DSU() :n(0) {}
+    explicit DSU(int n) :n(n) {
         init(n);
     }
 
@@ -42,19 +42,19 @@ struct DSU {
     }
 
     std::vector<std::vector<int>> groups() {
-        std::vector<int> p(_n), psize(_n);
-        for (int i = 0; i < _n; i++) {
+        std::vector<int> p(n), psize(n);
+        for (int i = 0; i < n; i++) {
             p[i] = find(i);
             psize[p[i]]++;
         }
-        std::vector<std::vector<int>> ans(_n);
-        for (int i = 0; i < _n; i++) {
+        std::vector<std::vector<int>> ans(n);
+        for (int i = 0; i < n; i++) {
             ans[i].reserve(psize[i]);
         }
-        for (int i = 0; i < _n; i++) {
+        for (int i = 0; i < n; i++) {
             ans[p[i]].push_back(i);
         }
-        ans.erase(std::remove_if(ans.begin(), ans.end(), [&](const std::vector<int>& v) {
+        ans.erase(std::remove_if(ans.begin(), ans.end(), [](const std::vector<int>& v) {
             return v.empty();
         }), ans.end());
         return ans;

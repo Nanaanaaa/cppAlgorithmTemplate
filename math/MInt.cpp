@@ -1,124 +1,166 @@
-template<class T>
-constexpr T power(T base, i64 exp) {
+using u32 = unsigned;
+using u64 = unsigned long long;
+template<typename T>
+constexpr T power(T a, u64 b) {
     T res{ 1 };
-    for (; exp; exp /= 2, base *= base) {
-        if (exp % 2) {
-            res *= base;
+    for (; b != 0; b /= 2, a *= a) {
+        if (b % 2 == 1) {
+            res *= a;
         }
     }
     return res;
 }
 
-constexpr i64 mul(i64 base, i64 exp, i64 mod) {
-    i64 res = base * exp - i64(1.L * base * exp / mod) * mod;
-    res %= mod;
-    if (res < 0) {
-        res += mod;
-    }
+template<u32 P>
+constexpr u32 mulMod(u32 a, u32 b) {
+    return 1ULL * a * b % P;
+}
+
+template<u64 P>
+constexpr u64 mulMod(u64 a, u64 b) {
+    u64 res = a * b - u64(1.L * a * b / P - 0.5L) * P;
+    res %= P;
     return res;
 }
 
-template<i64 P>
-struct MInt {
-    i64 x;
-    constexpr MInt() : x{ 0 } {}
-    constexpr MInt(i64 x) : x{ norm(x % getMod()) } {}
+template<typename U, U P>
+    requires std::unsigned_integral<U>
+struct ModIntBase {
+public:
+    constexpr ModIntBase() : x{ 0 } {}
 
-    static i64 Mod;
-    constexpr static i64 getMod() {
-        if (P > 0) {
-            return P;
-        } else {
-            return Mod;
+    template<typename T>
+        requires std::integral<T>
+    constexpr ModIntBase(T x_) : x{ norm(x_ % T {P}) } {}
+
+    constexpr static U norm(U x) {
+        if ((x >> (8 * sizeof(U) - 1) & 1) == 1) {
+            x += P;
         }
-    }
-    constexpr static void setMod(i64 Mod_) {
-        Mod = Mod_;
-    }
-    constexpr i64 norm(i64 x) const {
-        if (x < 0) {
-            x += getMod();
-        }
-        if (x >= getMod()) {
-            x -= getMod();
+        if (x >= P) {
+            x -= P;
         }
         return x;
     }
-    constexpr i64 val() const {
+
+    constexpr U val() const {
         return x;
     }
-    constexpr MInt operator-() const {
-        MInt res;
-        res.x = norm(getMod() - x);
+
+    constexpr ModIntBase operator-() const {
+        ModIntBase res;
+        res.x = norm(P - x);
         return res;
     }
-    constexpr MInt inv() const {
-        return power(*this, getMod() - 2);
+    constexpr ModIntBase operator+() const {
+        return *this;
     }
-    constexpr MInt& operator*=(MInt rhs)& {
-        if (getMod() < (1ULL << 31)) {
-            x = x * rhs.x % int(getMod());
-        } else {
-            x = mul(x, rhs.x, getMod());
+    constexpr ModIntBase& operator++() {
+        x++;
+        if (x == P) {
+            x = 0;
         }
         return *this;
     }
-    constexpr MInt& operator+=(MInt rhs)& {
+    constexpr ModIntBase& operator--() {
+        if (x == 0) {
+            x = P;
+        }
+        x--;
+        return *this;
+    }
+    constexpr ModIntBase operator++(int) {
+        ModIntBase result = *this;
+        ++*this;
+        return result;
+    }
+    constexpr ModIntBase operator--(int) {
+        ModIntBase result = *this;
+        --*this;
+        return result;
+    }
+
+    constexpr ModIntBase inv() const {
+        return power(*this, P - 2);
+    }
+
+    constexpr ModIntBase& operator*=(const ModIntBase& rhs)& {
+        x = mulMod<P>(x, rhs.val());
+        return *this;
+    }
+
+    constexpr ModIntBase& operator+=(const ModIntBase& rhs)& {
         x = norm(x + rhs.x);
         return *this;
     }
-    constexpr MInt& operator-=(MInt rhs)& {
+
+    constexpr ModIntBase& operator-=(const ModIntBase& rhs)& {
         x = norm(x - rhs.x);
         return *this;
     }
-    constexpr MInt& operator/=(MInt rhs)& {
+
+    constexpr ModIntBase& operator/=(const ModIntBase& rhs)& {
         return *this *= rhs.inv();
     }
-    friend constexpr MInt operator*(MInt lhs, MInt rhs) {
-        MInt res = lhs;
-        res *= rhs;
-        return res;
+
+    friend constexpr ModIntBase operator*(ModIntBase lhs, const ModIntBase& rhs) {
+        lhs *= rhs;
+        return lhs;
     }
-    friend constexpr MInt operator+(MInt lhs, MInt rhs) {
-        MInt res = lhs;
-        res += rhs;
-        return res;
+
+    friend constexpr ModIntBase operator+(ModIntBase lhs, const ModIntBase& rhs) {
+        lhs += rhs;
+        return lhs;
     }
-    friend constexpr MInt operator-(MInt lhs, MInt rhs) {
-        MInt res = lhs;
-        res -= rhs;
-        return res;
+
+    friend constexpr ModIntBase operator-(ModIntBase lhs, const ModIntBase& rhs) {
+        lhs -= rhs;
+        return lhs;
     }
-    friend constexpr MInt operator/(MInt lhs, MInt rhs) {
-        MInt res = lhs;
-        res /= rhs;
-        return res;
+
+    friend constexpr ModIntBase operator/(ModIntBase lhs, const ModIntBase& rhs) {
+        lhs /= rhs;
+        return lhs;
     }
-    friend constexpr std::istream& operator>>(std::istream& is, MInt& a) {
-        i64 v;
-        is >> v;
-        a = MInt(v);
-        return is;
-    }
-    friend constexpr std::ostream& operator<<(std::ostream& os, const MInt& a) {
+
+    friend constexpr std::ostream& operator<<(std::ostream& os, const ModIntBase& a) {
         return os << a.val();
     }
-    friend constexpr bool operator==(MInt lhs, MInt rhs) {
+
+    friend constexpr bool operator==(ModIntBase lhs, ModIntBase rhs) {
         return lhs.val() == rhs.val();
     }
-    friend constexpr bool operator!=(MInt lhs, MInt rhs) {
+
+    friend constexpr bool operator!=(ModIntBase lhs, ModIntBase rhs) {
         return lhs.val() != rhs.val();
     }
-    friend constexpr bool operator<(MInt lhs, MInt rhs) {
+
+    friend constexpr bool operator<(ModIntBase lhs, ModIntBase rhs) {
         return lhs.val() < rhs.val();
     }
-    friend constexpr MInt operator^(MInt lhs, i64 rhs) {
-        return power(lhs, rhs);
+
+    friend constexpr bool operator>(ModIntBase lhs, ModIntBase rhs) {
+        return lhs.val() > rhs.val();
     }
+private:
+    U x;
 };
 
-template<>
-i64 MInt<0>::Mod = 998244353;
+template<u32 P>
+using ModInt = ModIntBase<u32, P>;
 
-constexpr int P = 1000000007;
-using Z = MInt<P>;
+template<u64 P>
+using ModInt64 = ModIntBase<u64, P>;
+
+constexpr u32 P = 998244353;
+using mint = ModInt<P>;
+template<>
+struct std::formatter<mint> {
+    constexpr auto parse(std::format_parse_context& ctx) {
+        return ctx.begin();
+    }
+
+    constexpr auto format(const mint& x, std::format_context& ctx) const {
+        return std::format_to(ctx.out(), "{}", x.val());
+    }
+};

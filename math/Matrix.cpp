@@ -186,4 +186,28 @@ struct Matrix {
         }
         return a;
     }
+
+    Matrix transpose() {
+        Matrix res(m, n);
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                res[j][i] = mat[i][j];
+            }
+        }
+        return res;
+    };
+
+    bool isDiagonal() {
+        if (n != m) {
+            return false;
+        }
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (i != j && mat[i][j] != 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 };

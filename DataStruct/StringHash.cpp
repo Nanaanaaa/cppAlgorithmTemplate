@@ -92,15 +92,6 @@ struct Z {
         res /= rhs;
         return res;
     }
-    friend constexpr std::istream& operator>>(std::istream& is, Z& a) {
-        i64 v;
-        is >> v;
-        a = Z(v);
-        return is;
-    }
-    friend constexpr std::ostream& operator<<(std::ostream& os, const Z& a) {
-        return os << a.val();
-    }
     friend constexpr bool operator==(Z lhs, Z rhs) {
         return lhs.val() == rhs.val();
     }
@@ -175,6 +166,9 @@ struct StringHash { // a0 * b ^ 0 + a1 * b ^ 1 + ... + ai * B ^ i + ... + an * B
     int n;
     std::vector<Z> h, r;
     StringHash() { n = 0; h.push_back(0), r.push_back(0); }
+    StringHash(const char* s) {
+        init(std::string_view(s));
+    }
     StringHash(std::string_view s) {
         init(s);
     }

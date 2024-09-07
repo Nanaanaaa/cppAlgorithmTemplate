@@ -4,19 +4,16 @@ protected:
     struct Node {
         int len;
         int link;
-        int cnt;
         std::array<int, A> next;
-        Node() : len{}, link{}, cnt{}, next{} {}
+        Node() : len{}, link{}, next{} {}
         constexpr int& operator[](int x) {
             return next[x];
         }
     };
     std::vector<Node> t;
 public:
-    AhoCorasick() { init(); }
-    ~AhoCorasick() {
-        t.clear();
-        t.shrink_to_fit();
+    AhoCorasick() { 
+        init();
     }
     void init() {
         t.assign(2, Node());
@@ -38,7 +35,6 @@ public:
             }
             p = t[p][x];
         }
-        t[p].cnt++;
         return p;
     }
 
@@ -54,12 +50,12 @@ public:
         std::vector<int> q{ 1 };
         for (int i = 0; i < q.size(); i++) {
             auto x = q[i];
-            for (int i = 0; i < A; i++) {
-                if (t[x][i] == 0) {
-                    t[x][i] = t[t[x].link][i];
+            for (int j = 0; j < A; j++) {
+                if (t[x][j] == 0) {
+                    t[x][j] = t[t[x].link][j];
                 } else {
-                    t[t[x][i]].link = t[t[x].link][i];
-                    q.push_back(t[x][i]);
+                    t[t[x][j]].link = t[t[x].link][j];
+                    q.push_back(t[x][j]);
                 }
             }
         }
@@ -88,15 +84,5 @@ public:
 
     int size() {
         return t.size();
-    }
-
-    constexpr int& operator()(int p, auto x) {
-        return next(p, x);
-    }
-    constexpr int& operator[](int p) {
-        return t[p].link;
-    }
-    constexpr void operator+=(std::string_view s) {
-        add(s);
     }
 };
