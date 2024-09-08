@@ -25,7 +25,7 @@ constexpr u64 mulMod(u64 a, u64 b) {
 
 template<typename U, U P>
     requires std::unsigned_integral<U>
-struct ModIntBase {
+class ModIntBase {
 public:
     constexpr ModIntBase() : x{ 0 } {}
 
