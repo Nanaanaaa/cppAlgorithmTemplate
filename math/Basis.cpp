@@ -1,15 +1,16 @@
+using u64 = unsigned long long;
 template<int N>
 struct Basis {
-    std::array<i64, N> p{};
+    std::array<u64, N> p{};
 
     Basis() {
-        p.fill(-1);
+        p.fill(0);
     }
 
-    bool add(i64 x) {
+    bool add(u64 x) {
         for (int i = N - 1; i >= 0; i--) {
             if (x >> i & 1) {
-                if (p[i] == -1) {
+                if (p[i] == 0) {
                     p[i] = x;
                     return true;
                 }
@@ -19,8 +20,8 @@ struct Basis {
         return false;
     }
 
-    i64 query() {
-        i64 ans = 0;
+    u64 query() {
+        u64 ans = 0;
         for (int i = N - 1; i >= 0; i--) {
             if ((ans ^ p[i]) > ans) {
                 ans ^= p[i];
@@ -29,10 +30,10 @@ struct Basis {
         return ans;
     }
 
-    bool find(i64 x) {
+    bool find(u64 x) {
         for (int i = N - 1; i >= 0; i--) {
             if (x >> i & 1) {
-                if (p[i] == -1) {
+                if (p[i] == 0) {
                     return true;
                 }
                 x ^= p[i];
