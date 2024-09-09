@@ -6,16 +6,17 @@ struct Basis {
         p.fill(-1);
     }
 
-    void add(i64 x) {
+    bool add(i64 x) {
         for (int i = N - 1; i >= 0; i--) {
             if (x >> i & 1) {
                 if (p[i] == -1) {
                     p[i] = x;
-                    break;
+                    return true;
                 }
                 x ^= p[i];
             }
         }
+        return false;
     }
 
     i64 query() {
@@ -26,5 +27,17 @@ struct Basis {
             }
         }
         return ans;
+    }
+
+    bool find(i64 x) {
+        for (int i = N - 1; i >= 0; i--) {
+            if (x >> i & 1) {
+                if (p[i] == -1) {
+                    return true;
+                }
+                x ^= p[i];
+            }
+        }
+        return false;
     }
 };
