@@ -1,29 +1,30 @@
-template<std::size_t N>
+template<int N>
 struct Basis {
-    std::array<int, N> a{}, t{};
+    std::array<i64, N> p{};
 
     Basis() {
-        std::fill(t, t + 20, -1);
+        p.fill(-1);
     }
 
-    void add(int x, int y = 1E9) {
-        for (int i = 0; i < 20; i++) {
+    void add(i64 x) {
+        for (int i = N - 1; i >= 0; i--) {
             if (x >> i & 1) {
-                if (y > t[i]) {
-                    std::swap(a[i], x);
-                    std::swap(t[i], y);
+                if (p[i] == -1) {
+                    p[i] = x;
+                    break;
                 }
-                x ^= a[i];
+                x ^= p[i];
             }
         }
     }
 
-    bool query(int x, int y = 0) {
-        for (int i = 0; i < 20; i++) {
-            if ((x >> i & 1) && t[i] >= y) {
-                x ^= a[i];
+    i64 query() {
+        i64 ans = 0;
+        for (int i = N - 1; i >= 0; i--) {
+            if ((ans ^ p[i]) > ans) {
+                ans ^= p[i];
             }
         }
-        return x == 0;
+        return ans;
     }
 };
