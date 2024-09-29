@@ -60,8 +60,7 @@ struct HLD {
         while (top[u] != top[v]) {
             if (dep[top[u]] > dep[top[v]]) {
                 u = parent[top[u]];
-            }
-            else {
+            } else {
                 v = parent[top[v]];
             }
         }

@@ -8,12 +8,11 @@ auto judge = [&]() {
         while (!q.empty()) {
             auto u = q.front();
             q.pop();
-            for (const auto& v : adj[u]) {
+            for (int v : adj[u]) {
                 if (col[v] == -1) {
                     q.push(v);
                     col[v] = col[u] ^ 1;
-                }
-                else if (col[v] == col[u]) {
+                } else if (col[v] == col[u]) {
                     return false;
                 }
             }

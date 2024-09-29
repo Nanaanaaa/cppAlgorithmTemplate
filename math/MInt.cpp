@@ -1,11 +1,11 @@
 using u32 = unsigned;
 using u64 = unsigned long long;
 template<typename T>
-constexpr T power(T a, u64 b) {
+constexpr T power(T base, u64 exp) {
     T res{ 1 };
-    for (; b != 0; b /= 2, a *= a) {
-        if (b % 2 == 1) {
-            res *= a;
+    for (; exp != 0; exp /= 2, base *= base) {
+        if (exp & 1) {
+            res *= base;
         }
     }
     return res;

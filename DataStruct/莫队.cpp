@@ -1,16 +1,12 @@
 constexpr int M = 500;
 
-constexpr int bel(int i) {
-    return i / M;
-}
-
 std::sort(qry.begin(), qry.end(), [&](const auto& a, const auto& b) {
     if (a[0] / M != b[0] / M) return a[0] < b[0];
     return a[0] / M % 2 ? a[1] > b[1] : a[1] < b[1];
 });
 
 int l = 1, r = 0, res = 0;
-std::vector<int> ans(m);
+std::vector<int> ans(q);
 
 auto add = [&](int i) {
 
