@@ -33,11 +33,10 @@ Node* add(Node* p, int l, int r, int x, int v) {
     if (r - l == 1) {
         return p;
     }
-    int m = (l + r) / 2;
+    int m = std::midpoint(l, r);
     if (x < m) {
         p->l = add(p->l, l, m, x, v);
-    }
-    else {
+    } else {
         p->r = add(p->r, m, r, x, v);
     }
     return p;
@@ -51,7 +50,7 @@ int kmin(Node* t1, Node* t2, int l, int r, int k) {
         return l;
     }
     int cnt = lcnt(t2) - lcnt(t1);
-    int m = (l + r) / 2;
+    int m = std::midpoint(l, r);
     if (k > cnt) {
         return kmin(rs(t1), rs(t2), m, r, k - cnt);
     }
@@ -66,7 +65,7 @@ int kmax(Node* t1, Node* t2, int l, int r, int k) {
         return l;
     }
     int cnt = rcnt(t2) - rcnt(t1);
-    int m = (l + r) / 2;
+    int m = std::midpoint(l, r);
     if (cnt > k) {
         return kmax(rs(t1), rs(t2), m, r, k);
     }

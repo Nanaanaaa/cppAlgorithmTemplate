@@ -156,7 +156,7 @@ constexpr u32 P = 998244353;
 using mint = ModInt<P>;
 template<>
 struct std::formatter<mint> {
-    constexpr auto parse(std::format_parse_context& ctx) {
+    constexpr auto parse(const std::format_parse_context& ctx) {
         return ctx.begin();
     }
 

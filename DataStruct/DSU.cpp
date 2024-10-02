@@ -26,9 +26,6 @@ struct DSU {
         if (x == y) {
             return false;
         }
-        if (siz[x] < siz[y]) {
-            std::swap(x, y);
-        }
         siz[x] += siz[y];
         f[y] = x;
         return true;
@@ -54,9 +51,9 @@ struct DSU {
         for (int i = 0; i < n; i++) {
             ans[p[i]].push_back(i);
         }
-        ans.erase(std::remove_if(ans.begin(), ans.end(), [](const std::vector<int>& v) {
+        std::erase_if(ans, [](std::span<int> v) {
             return v.empty();
-        }), ans.end());
+        });
         return ans;
     }
 

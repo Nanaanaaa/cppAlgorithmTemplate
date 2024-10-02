@@ -73,7 +73,7 @@ public:
     int find(const T& k) {
         int x = 0;
         T cur{};
-        for (int i = 1 << lg(n); i; i /= 2) {
+        for (int i = 1 << lg(n); i; i >>= 1) {
             if (x + i <= n && cur + tr[x + i - 1] <= k) {
                 x += i;
                 cur = cur + tr[x - 1];
