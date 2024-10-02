@@ -1,47 +1,54 @@
-struct Node {
-    int l, r;
-    mutable i64 v;
-    Node(const int& l, const int& r = 0, const i64& v = 0) :l(l), r(r), v(v) {}
-    constexpr bool operator<(const Node& t) { return l < t.l; }
-};
-
-template <class Node>
 struct ChthollyTree {
-    std::set<Node> S;
+    std::map<int, i64> map;
 
-    ChthollyTree(std::vector<int> w) {
-        for (int i = 0; i < w.size(); i++) {
-            S.emplace(i, i, w[i]);
-        }
+    ChthollyTree() {}
+    constexpr i64& operator[](int x) {
+        return map[x];
     }
 
-    void insert(const Node& t) {
-        S.emplace(t);
-    }
-
-    auto split(int pos) {
-        auto it = S.lower_bound(Node(pos));
-        if (it != S.end() && it->l == pos) {
-            return it;
-        }
-        --it;
-        int l = it->l, r = it->r;
-        i64 v = it->v;
-        S.erase(it);
-        S.emplace(l, pos - 1, v);
-        return S.emplace(pos, r, v).first;
+    void split(int p) {
+        map[p] = std::prev(map.upper_bound(p))->second;
     }
 
     void rangeAssign(int l, int r, int v) {
-        auto it2 = split(r + 1), it1 = split(l);
-        S.erase(it1, it2);
-        S.emplace(l, r, v);
+        split(l);
+        split(r);
+        for (auto it = map.find(l); it->first < r; it = map.erase(it)) {}
+        map[l] = v;
     }
 
     void rangeAdd(int l, int r, int v) {
-        auto it2 = split(r + 1), it1 = split(l);
-        for (auto it = it1; it != it2; ++it) {
-            it->v += v;
+        split(l);
+        split(r);
+        for (auto it = map.find(l); it->first < r; it++) {
+            it->second += v;
         }
+    }
+    i64 rangeKth(int l, int r, int k) {
+        split(l);
+        split(r);
+        std::vector<std::pair<i64, int>> t;
+        for (auto it = map.find(l); it->first < r; it++) {
+            t.emplace_back(it->second, std::next(it)->first - it->first);
+        }
+        std::sort(t.begin(), t.end());
+        for (auto&& [x, siz] : t) {
+            k -= siz;
+            if (k <= 0) {
+                return x;
+            }
+        }
+        return -1;
+    }
+
+    i64 rangeSum(int l, int r, int x, int y) {
+        i64 ans = 0;
+        split(l);
+        split(r);
+        for (auto it = map.find(l); it->first < r; it++) {
+            ans += power(it->second, x, y) * (std::next(it)->first - it->first) % y;
+            ans %= y;
+        }
+        return ans;
     }
 };
