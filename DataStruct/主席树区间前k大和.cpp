@@ -5,11 +5,6 @@ struct Node {
     Node* r = nullptr;
     int cnt = 0;
     i64 sum = 0;
-    Node(Node* t) {
-        if (t != nullptr) {
-            *this = *t;
-        }
-    }
 };
 
 constexpr int lcnt(const Node* t) {
@@ -35,8 +30,15 @@ constexpr Node* ls(Node* t) {
     return t ? t->l : t;
 }
 
+constexpr int N = 10000000;
+Node* pool = static_cast<Node*>(std::calloc(N, sizeof(Node)));
+int idx;
+
 Node* add(Node* p, int l, int r, int x, int v) {
-    p = new Node(p);
+    if (p != nullptr) {
+        pool[idx] = *p;
+    }
+    p = &pool[idx++];
     p->cnt += v;
     p->sum += x;
     if (r - l == 1) {
@@ -45,8 +47,7 @@ Node* add(Node* p, int l, int r, int x, int v) {
     int m = (l + r) / 2;
     if (x < m) {
         p->l = add(p->l, l, m, x, v);
-    }
-    else {
+    } else {
         p->r = add(p->r, m, r, x, v);
     }
     return p;

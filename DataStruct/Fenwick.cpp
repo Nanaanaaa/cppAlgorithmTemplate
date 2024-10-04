@@ -1,4 +1,4 @@
-int lg(unsigned int x) {
+constexpr int lg(unsigned int x) {
     return std::bit_width(x) - 1;
 }
 
@@ -8,7 +8,7 @@ private:
     int n;
     std::vector<T> tr;
     struct Proxy {
-        Fenwick<T>& fen{};
+        Fenwick& fen{};
         int idx{};
         constexpr Proxy& operator+=(const T& v) {
             fen.add(idx, v);

@@ -1,4 +1,4 @@
-int lg(unsigned int x) {
+constexpr int lg(unsigned int x) {
     return std::bit_width(x) - 1;
 }
 
@@ -8,11 +8,11 @@ struct LazySegmentTree {
     std::vector<Info> tr;
     std::vector<Tag> tag;
     LazySegmentTree() : n(0) {}
-    LazySegmentTree(int n_, Info v_ = Info()) {
+    explicit LazySegmentTree(int n_, Info v_ = Info()) {
         init(n_, v_);
     }
     template<class T>
-    LazySegmentTree(std::vector<T> init_) {
+    explicit LazySegmentTree(std::vector<T> init_) {
         init(init_);
     }
     void init(int n_, Info v_ = Info()) {
@@ -147,26 +147,24 @@ struct LazySegmentTree {
 
     struct Proxy {
         LazySegmentTree& seg;
-        int i, j;
+        int l, r;
         Info val;
-        Proxy(LazySegmentTree& seg, int i, int j) :seg(seg), i(i), j(j), val(seg.rangeQuery(i, j)) {}
+        Proxy(LazySegmentTree& seg, int l, int r) :seg(seg), l(l), r(r), val(seg.rangeQuery(l, r)) {}
         constexpr Info* operator->() {
             return &val;
         }
-        constexpr Proxy& operator=(const Info& info) {
-            assert(i + 1 == j);
-            seg.modify(i, info);
-            return *this;
+        constexpr void operator=(const Info& info) {
+            assert(r - l == 1);
+            seg.modify(l, info);
         }
-        constexpr Proxy& operator+=(const Tag& tag) {
-            seg.rangeApply(i, j, tag);
-            return *this;
+        constexpr void operator+=(const Tag& tag) {
+            seg.rangeApply(l, r, tag);
         }
     };
-    constexpr Proxy operator[](int i) {
-        return Proxy(*this, i, i + 1);
+    constexpr Proxy operator[](int x) {
+        return Proxy(*this, x, x + 1);
     }
-    constexpr Proxy operator()(int i, int j) {
-        return Proxy(*this, i, j);
+    constexpr Proxy operator()(int l, int r) {
+        return Proxy(*this, l, r);
     }
 };

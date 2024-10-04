@@ -127,6 +127,10 @@ public:
         return os << a.val();
     }
 
+    friend constexpr std::istream& operator>>(std::istream& is, ModIntBase& a) {
+        return is >> a.x;
+    }
+
     friend constexpr bool operator==(ModIntBase lhs, ModIntBase rhs) {
         return lhs.val() == rhs.val();
     }

@@ -1,4 +1,4 @@
-int lg(unsigned int x) {
+constexpr int lg(unsigned int x) {
     return std::bit_width(x) - 1;
 }
 
@@ -7,7 +7,7 @@ struct SegmentTree {
     int n;
     std::vector<Info> tr;
     SegmentTree() : n(0) {}
-    SegmentTree(int n_, Info v_ = Info()) {
+    explicit SegmentTree(int n_, Info v_ = Info()) {
         init(n_, v_);
     }
     template<class T>
@@ -112,23 +112,15 @@ struct SegmentTree {
     }
 
     struct Proxy {
-        SegmentTree& seg{};
-        int i = 0, j = 1;
-        Info val{};
-        Proxy(SegmentTree& seg, int i, int j) :seg(seg), i(i), j(j), val(seg.rangeQuery(i, j)) {}
-        constexpr Info* operator->() {
-            return &val;
-        }
-        constexpr Info operator*() {
-            return val;
-        }
-        constexpr Proxy& operator=(const Info& info) {
+        SegmentTree& seg;
+        int i;
+        Proxy(SegmentTree& seg, int i) :seg(seg), i(i) {}
+        constexpr void operator=(const Info& info) {
             seg.modify(i, info);
-            return *this;
         }
     };
     constexpr Proxy operator[](int i) {
-        return Proxy(*this, i, i + 1);
+        return Proxy(*this, i);
     }
     constexpr Info operator()(int i, int j) {
         return rangeQuery(i, j);
