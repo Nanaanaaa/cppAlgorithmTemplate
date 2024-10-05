@@ -11,14 +11,14 @@ struct SegmentTree {
         init(n_, v_);
     }
     template<class T>
-    explicit SegmentTree(std::vector<T> init_) {
+    explicit SegmentTree(const std::vector<T>& init_) {
         init(init_);
     }
     void init(int n_, Info v_ = Info()) {
         init(std::vector(n_, v_));
     }
     template<class T>
-    void init(std::vector<T> init_) {
+    void init(const std::vector<T>& init_) {
         n = init_.size();
         tr.assign(4 << lg(n), Info());
         auto build = [&](auto&& self, int p, int l, int r) {

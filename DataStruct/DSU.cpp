@@ -51,7 +51,7 @@ struct DSU {
         for (int i = 0; i < n; i++) {
             ans[p[i]].push_back(i);
         }
-        std::erase_if(ans, [](std::span<int> v) {
+        std::erase_if(ans, [](const std::vector<int>& v) {
             return v.empty();
         });
         return ans;

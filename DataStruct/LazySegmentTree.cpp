@@ -7,19 +7,24 @@ struct LazySegmentTree {
     int n;
     std::vector<Info> tr;
     std::vector<Tag> tag;
+
     LazySegmentTree() : n(0) {}
+
     explicit LazySegmentTree(int n_, Info v_ = Info()) {
         init(n_, v_);
     }
+
     template<class T>
-    explicit LazySegmentTree(std::vector<T> init_) {
+    explicit LazySegmentTree(const std::vector<T>& init_) {
         init(init_);
     }
+
     void init(int n_, Info v_ = Info()) {
         init(std::vector(n_, v_));
     }
+
     template<class T>
-    void init(std::vector<T> init_) {
+    void init(const std::vector<T>& init_) {
         n = init_.size();
         tr.assign(4 << lg(n), Info());
         tag.assign(4 << lg(n), Tag());
@@ -65,6 +70,7 @@ struct LazySegmentTree {
         }
         pull(p);
     }
+
     void modify(int x, const Info& v) {
         modify(1, 0, n, x, v);
     }
@@ -80,6 +86,7 @@ struct LazySegmentTree {
         push(p);
         return rangeQuery(2 * p, l, m, x, y) + rangeQuery(2 * p + 1, m, r, x, y);
     }
+
     Info rangeQuery(int l, int r) {
         return rangeQuery(1, 0, n, l, r);
     }
@@ -97,6 +104,7 @@ struct LazySegmentTree {
         rangeApply(2 * p + 1, m, r, x, y, t);
         pull(p);
     }
+
     void rangeApply(int l, int r, const Tag& t) {
         return rangeApply(1, 0, n, l, r, t);
     }
@@ -119,6 +127,7 @@ struct LazySegmentTree {
         }
         return res;
     }
+
     int findFirst(int l, int r, auto&& pred) {
         return findFirst(1, 0, n, l, r, pred);
     }
@@ -141,6 +150,7 @@ struct LazySegmentTree {
         }
         return res;
     }
+
     int findLast(int l, int r, auto&& pred) {
         return findLast(1, 0, n, l, r, pred);
     }
@@ -148,22 +158,36 @@ struct LazySegmentTree {
     struct Proxy {
         LazySegmentTree& seg;
         int l, r;
-        Info val;
-        Proxy(LazySegmentTree& seg, int l, int r) :seg(seg), l(l), r(r), val(seg.rangeQuery(l, r)) {}
+        std::optional<Info> val;
+
+        Proxy(LazySegmentTree& seg, int l, int r) : seg(seg), l(l), r(r), val(std::nullopt) {}
+
         constexpr Info* operator->() {
-            return &val;
+            if (!val) {
+                val = seg.rangeQuery(l, r);
+            }
+            return &(*val);
         }
+
         constexpr void operator=(const Info& info) {
-            assert(r - l == 1);
-            seg.modify(l, info);
+            if (r - l == 1) {
+                seg.modify(l, info);
+                val.reset();
+            } else {
+                throw std::invalid_argument("r - l must be equal to 1");
+            }
         }
+
         constexpr void operator+=(const Tag& tag) {
             seg.rangeApply(l, r, tag);
+            val.reset();
         }
     };
+
     constexpr Proxy operator[](int x) {
         return Proxy(*this, x, x + 1);
     }
+
     constexpr Proxy operator()(int l, int r) {
         return Proxy(*this, l, r);
     }
