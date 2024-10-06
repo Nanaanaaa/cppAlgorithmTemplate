@@ -1,69 +1,40 @@
-class Trie {
-protected:
-    constexpr static int A = 26;
-    struct Node {
-        std::array<int, A> next{};
-        int siz = 0;
-        int cnt = 0;
-        constexpr int& operator[](int x) {
-            return next[x];
-        }
-    };
-    std::vector<Node> t;
-public:
-    Trie() {
-        init();
-    }
-    Trie(int __n) {
-        t.reserve(__n);
-        init();
-    }
-    ~Trie() {
-        t.clear();
-        t.shrink_to_fit();
-    }
-    void init() {
-        t.assign(2, Node());
-        t[0].next.fill(1);
-    }
+struct Trie : std::vector<std::array<int, 2>> {
+    Trie(int n = 0) { this->reserve(n + 1); newNode(); }
+
     int newNode() {
-        t.emplace_back();
-        return t.size() - 1;
-    }
-    int& siz(int p) {
-        return t[p].siz;
-    }
-    int& cnt(int p) {
-        return t[p].cnt;
+        this->push_back({});
+        return this->size() - 1;
     }
 
-    void add(std::string_view s) {
-        int p = 1;
-        for (auto c : s) {
-            int d = c - 'a';
-            if (t[p][d] == 0) {
-                t[p][d] = newNode();
+    template<class T>
+    void add(T x) {
+        int p = 0;
+        int hi = std::numeric_limits<T>::digits - 1;
+
+        for (int i = hi; i >= 0; i--) {
+            int d = x >> i & 1;
+            if (!(*this)[p][d]) {
+                (*this)[p][d] = newNode();
             }
-            p = t[p][d];
-            t[p].siz++;
+            p = (*this)[p][d];
         }
-        t[p].cnt++;
     }
-    int query(std::string_view s, char offset = 'a') {
-        int p = 1;
-        for (auto c : s) {
-            int d = c - offset;
-            p = t[p][d];
-            if (p == 0) {
-                return 0;
+
+    template<class T>
+    int query(T x) {
+        int p = 0;
+        T ans = 0;
+        int hi = std::numeric_limits<T>::digits - 1;
+
+        for (int i = hi; i >= 0; i--) {
+            int d = x >> i & 1;
+            if ((*this)[p][!d]) {
+                ans |= 1LL << i;
+                p = (*this)[p][!d];
+            } else {
+                p = (*this)[p][d];
             }
         }
-        return t[p].cnt;
-    }
-    template<class T> constexpr void operator+=(T& x) {
-        add(x);
-    }
-    template<class T> constexpr auto operator()(T& x) {
-        return query(x);
+        return ans;
     }
 };
