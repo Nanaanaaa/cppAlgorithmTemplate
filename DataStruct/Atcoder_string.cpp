@@ -311,7 +311,8 @@ struct RMQ {
 // D. Gusfield,
 // Algorithms on Strings, Trees, and Sequences: Computer Science and
 // Computational Biology
-template <class T> std::vector<int> Zfunction(const std::vector<T>& s) {
+template <class T>
+auto Zfunction(const std::vector<T>& s) {
     int n = int(s.size());
     if (n == 0) return {};
     std::vector<int> z(n);
@@ -326,8 +327,8 @@ template <class T> std::vector<int> Zfunction(const std::vector<T>& s) {
     return z;
 }
 
-std::vector<int> Zfunction(const std::string& s) {
-    int n = int(s.size());
+auto Zfunction(std::string_views s) {
+    const int n = s.size();
     std::vector<int> s2(n);
     for (int i = 0; i < n; i++) {
         s2[i] = s[i];
@@ -335,8 +336,10 @@ std::vector<int> Zfunction(const std::string& s) {
     return Zfunction(s2);
 }
 
-std::vector<int> kmp(std::string_view s) {
+template <class T>
+auto kmp(const std::vector<T>& s) {
     const int n = s.size();
+    if (n == 0) return {};
     std::vector<int> f(n + 1);
     for (int i = 1, j = 0; i < n; i++) {
         while (j && s[i] != s[j]) {
@@ -346,4 +349,13 @@ std::vector<int> kmp(std::string_view s) {
         f[i + 1] = j;
     }
     return f;
+}
+
+auto kmp(std::string_view s) {
+    const int n = s.size();
+    std::vector<int> s2(n);
+    for (int i = 0; i < n; i++) {
+        s2[i] = s[i];
+    }
+    return kmp(s2);
 }
