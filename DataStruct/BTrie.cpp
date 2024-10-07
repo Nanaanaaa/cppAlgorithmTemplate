@@ -8,7 +8,7 @@ struct BTrie : std::vector<Info> {
     }
 
     template<typename T>
-    void add(T x) {
+    void add(const T& __x) {
         int p = 0;
         int hi = std::numeric_limits<T>::digits - 1;
 
@@ -22,7 +22,7 @@ struct BTrie : std::vector<Info> {
     }
 
     template<typename T>
-    T query(T x) {
+    T query(const T& __x) {
         int p = 0;
         T ans = 0;
         int hi = std::numeric_limits<T>::digits - 1;
