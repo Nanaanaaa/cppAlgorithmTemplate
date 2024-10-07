@@ -15,9 +15,9 @@ struct Trie : std::vector<Info> {
                 (*this)[p][c] = newNode();
             }
             p = (*this)[p][c];
-            this->at(p).siz++;
+            (*this)[p].siz++;
         }
-        this->at(p).cnt++;
+        (*this)[p].cnt++;
     }
 
     void add(const char* s) {
@@ -33,7 +33,7 @@ struct Trie : std::vector<Info> {
                 return 0;
             }
         }
-        return this->at(p).cnt;
+        return (*this)[p].cnt;
     }
 
     int query(const char* s) {
@@ -49,6 +49,6 @@ struct Info {
     std::array<int, ALPHABET_SIZE> tr{};
 
     constexpr int& operator[](int i) {
-        return tr.at(i);
+        return (*this)[i];
     }
 };
