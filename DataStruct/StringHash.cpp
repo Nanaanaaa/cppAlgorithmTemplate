@@ -1,112 +1,181 @@
-constexpr bool isprime(int n) {
-    if (n <= 1) {
-        return false;
-    }
-    for (int i = 2; i * i <= n; i++) {
-        if (n % i == 0) {
-            return false;
-        }
-    }
-    return true;
-}
+using i64 = long long;
+using i128 = __int128;
 
-constexpr int findPrime(int n) {
-    while (!isprime(n)) {
-        n++;
+constexpr i64 mul(i64 a, i64 b, i64 p) {
+    i64 res = a * b - i64(1.L * a * b / p) * p;
+    res %= p;
+    if (res < 0) {
+        res += p;
     }
-    return n;
+    return res;
 }
-
-std::mt19937 rnd(std::chrono::high_resolution_clock::now().time_since_epoch().count());
-const int P = findPrime(rnd() % 900000000 + 100000000);
-const int B = rnd() % P;
 
 template<class T>
 constexpr T power(T base, i64 exp) {
     T res{ 1 };
-    for (; exp; exp /= 2, base *= base) {
-        if (exp % 2) {
+    for (; exp; exp >>= 1, base *= base) {
+        if (exp & 1) {
             res *= base;
         }
     }
     return res;
 }
 
-struct Z {
-    i64 x;
-    constexpr Z() : x{ 0 } {}
-    constexpr Z(i64 x) : x{ norm(x % P) } {}
+constexpr i64 power(i64 a, i64 b, i64 p) {
+    i64 res = 1 % p;
+    for (; b; b >>= 1, a = mul(a, a, p)) {
+        if (b & 1) {
+            res = mul(res, a, p);
+        }
+    }
+    return res;
+}
 
+bool isprime(i64 n) {
+    if (n < 2) {
+        return false;
+    }
+    static constexpr int A[] = { 2, 3, 5, 7, 11, 13, 17, 19, 23 };
+    const int s = std::__countr_zero(n - 1);
+    const i64 d = (n - 1) >> s;
+
+    for (auto&& a : A) {
+        if (a == n) {
+            return true;
+        }
+        i64 x = power(a, d, n);
+        if (x == 1 || x == n - 1) {
+            continue;
+        }
+        bool ok = false;
+        for (int i = 0; i < s - 1; i++) {
+            x = mul(x, x, n);
+            if (x == n - 1) {
+                ok = true;
+                break;
+            }
+        }
+        if (!ok) {
+            return false;
+        }
+    }
+    return true;
+}
+
+i64 findPrime(i64 n) {
+    while (!isprime(n)) {
+        n++;
+    }
+    return n;
+}
+
+std::mt19937 rnd(std::chrono::steady_clock::now().time_since_epoch().count());
+constexpr i64 __L = 1e16, __R = 1e18;
+const i64 P = findPrime(rnd() % __R + __R);
+const i64 B = findPrime(rnd() % P + __L);
+
+template<i64 P>
+struct MLong {
+    i64 x;
+    constexpr MLong() : x{} {}
+    constexpr MLong(i64 x) : x{ norm(x % getMod()) } {}
+
+    static i64 Mod;
+    constexpr static i64 getMod() {
+        if (P > 0) {
+            return P;
+        } else {
+            return Mod;
+        }
+    }
+    constexpr static void setMod(i64 Mod_) {
+        Mod = Mod_;
+    }
     constexpr i64 norm(i64 x) const {
         if (x < 0) {
-            x += P;
+            x += getMod();
         }
-        if (x >= P) {
-            x -= P;
+        if (x >= getMod()) {
+            x -= getMod();
         }
         return x;
     }
     constexpr i64 val() const {
         return x;
     }
-    constexpr Z operator-() const {
-        Z res;
-        res.x = norm(P - x);
+    explicit constexpr operator i64() const {
+        return x;
+    }
+    constexpr MLong operator-() const {
+        MLong res;
+        res.x = norm(getMod() - x);
         return res;
     }
-    constexpr Z inv() const {
-        return power(*this, P - 2);
+    constexpr MLong inv() const {
+        assert(x != 0);
+        return power(*this, getMod() - 2);
     }
-    constexpr Z& operator*=(Z rhs)& {
-        x = x * rhs.x % P;
+    constexpr MLong& operator*=(MLong rhs)& {
+        x = mul(x, rhs.x, getMod());
         return *this;
     }
-    constexpr Z& operator+=(Z rhs)& {
+    constexpr MLong& operator+=(MLong rhs)& {
         x = norm(x + rhs.x);
         return *this;
     }
-    constexpr Z& operator-=(Z rhs)& {
+    constexpr MLong& operator-=(MLong rhs)& {
         x = norm(x - rhs.x);
         return *this;
     }
-    constexpr Z& operator/=(Z rhs)& {
+    constexpr MLong& operator/=(MLong rhs)& {
         return *this *= rhs.inv();
     }
-    friend constexpr Z operator*(Z lhs, Z rhs) {
-        Z res = lhs;
+    friend constexpr MLong operator*(MLong lhs, MLong rhs) {
+        MLong res = lhs;
         res *= rhs;
         return res;
     }
-    friend constexpr Z operator+(Z lhs, Z rhs) {
-        Z res = lhs;
+    friend constexpr MLong operator+(MLong lhs, MLong rhs) {
+        MLong res = lhs;
         res += rhs;
         return res;
     }
-    friend constexpr Z operator-(Z lhs, Z rhs) {
-        Z res = lhs;
+    friend constexpr MLong operator-(MLong lhs, MLong rhs) {
+        MLong res = lhs;
         res -= rhs;
         return res;
     }
-    friend constexpr Z operator/(Z lhs, Z rhs) {
-        Z res = lhs;
+    friend constexpr MLong operator/(MLong lhs, MLong rhs) {
+        MLong res = lhs;
         res /= rhs;
         return res;
     }
-    friend constexpr bool operator==(Z lhs, Z rhs) {
+    friend constexpr std::istream& operator>>(std::istream& is, MLong& a) {
+        i64 v;
+        is >> v;
+        a = MLong(v);
+        return is;
+    }
+    friend constexpr std::ostream& operator<<(std::ostream& os, const MLong& a) {
+        return os << a.val();
+    }
+    friend constexpr bool operator==(MLong lhs, MLong rhs) {
         return lhs.val() == rhs.val();
     }
-    friend constexpr bool operator!=(Z lhs, Z rhs) {
+    friend constexpr bool operator!=(MLong lhs, MLong rhs) {
         return lhs.val() != rhs.val();
     }
-    friend constexpr bool operator<(Z lhs, Z rhs) {
-        return lhs.val() < rhs.val();
-    }
 };
-const Z invB = Z(B).inv();
+
+template<>
+i64 MLong<0LL>::Mod = P;
+
+using mlong = MLong<0LL>;
+const mlong invB = mlong(B).inv();
 
 namespace coef {
     int n;
-    std::vector<Z> _p{ 1 }, _q{ 1 };
+    std::vector<mlong> _p{ 1 }, _q{ 1 };
     void init(int m) {
         if (m <= n) {
             return;
@@ -119,8 +188,8 @@ namespace coef {
         }
         n = m;
     }
-    Z q(int m);
-    Z p(int m) {
+    mlong q(int m);
+    mlong p(int m) {
         if (m < 0) {
             return q(-m);
         }
@@ -129,7 +198,7 @@ namespace coef {
         }
         return _p[m];
     }
-    Z q(int m) {
+    mlong q(int m) {
         if (m < 0) {
             return p(-m);
         }
@@ -141,10 +210,10 @@ namespace coef {
 };
 
 struct Hash {
-    Z x;
+    mlong x;
     int siz;
-    Hash(Z x = 0, int siz = 0) : x(x), siz(siz) {}
-    Z val() const {
+    Hash(mlong x = 0, int siz = 0) : x(x), siz(siz) {}
+    mlong val() const {
         return x.val();
     }
     constexpr friend Hash operator+(const Hash& a, const Hash& b) {
@@ -164,7 +233,7 @@ struct Hash {
 
 struct StringHash { // a0 * b ^ 0 + a1 * b ^ 1 + ... + ai * B ^ i + ... + an * B ^ n;
     int n;
-    std::vector<Z> h, r;
+    std::vector<mlong> h, r;
     StringHash() { n = 0; h.push_back(0), r.push_back(0); }
     StringHash(const char* s) {
         init(std::string_view(s));
