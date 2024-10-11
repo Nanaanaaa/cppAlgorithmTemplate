@@ -1,8 +1,5 @@
-using i64 = long long;
-using i128 = __int128;
-
-constexpr i64 mul(i64 a, i64 b, i64 p) {
-    i64 res = a * b - i64(1.L * a * b / p) * p;
+constexpr int64_t mul(int64_t a, int64_t b, int64_t p) {
+    int64_t res = a * b - int64_t(1.L * a * b / p) * p;
     res %= p;
     if (res < 0) {
         res += p;
@@ -11,7 +8,7 @@ constexpr i64 mul(i64 a, i64 b, i64 p) {
 }
 
 template<class T>
-constexpr T power(T base, i64 exp) {
+constexpr T power(T base, int64_t exp) {
     T res{ 1 };
     for (; exp; exp >>= 1, base *= base) {
         if (exp & 1) {
@@ -21,8 +18,8 @@ constexpr T power(T base, i64 exp) {
     return res;
 }
 
-constexpr i64 power(i64 a, i64 b, i64 p) {
-    i64 res = 1 % p;
+constexpr int64_t power(int64_t a, int64_t b, int64_t p) {
+    int64_t res = 1 % p;
     for (; b; b >>= 1, a = mul(a, a, p)) {
         if (b & 1) {
             res = mul(res, a, p);
@@ -31,19 +28,19 @@ constexpr i64 power(i64 a, i64 b, i64 p) {
     return res;
 }
 
-bool isprime(i64 n) {
+bool isprime(int64_t n) {
     if (n < 2) {
         return false;
     }
     static constexpr int A[] = { 2, 3, 5, 7, 11, 13, 17, 19, 23 };
     const int s = std::__countr_zero(n - 1);
-    const i64 d = (n - 1) >> s;
+    const int64_t d = (n - 1) >> s;
 
     for (auto&& a : A) {
         if (a == n) {
             return true;
         }
-        i64 x = power(a, d, n);
+        int64_t x = power(a, d, n);
         if (x == 1 || x == n - 1) {
             continue;
         }
@@ -62,7 +59,7 @@ bool isprime(i64 n) {
     return true;
 }
 
-i64 findPrime(i64 n) {
+int64_t findPrime(int64_t n) {
     while (!isprime(n)) {
         n++;
     }
@@ -70,28 +67,28 @@ i64 findPrime(i64 n) {
 }
 
 std::mt19937 rnd(std::chrono::steady_clock::now().time_since_epoch().count());
-constexpr i64 __L = 1e16, __R = 1e18;
-const i64 P = findPrime(rnd() % __R + __R);
-const i64 B = findPrime(rnd() % P + __L);
+constexpr int64_t __M = 1e18;
+const int64_t P = findPrime(rnd() % __M + __M);
+const int64_t B = findPrime(rnd() % P + __M);
 
-template<i64 P>
+template<int64_t P>
 struct MLong {
-    i64 x;
+    int64_t x;
     constexpr MLong() : x{} {}
-    constexpr MLong(i64 x) : x{ norm(x % getMod()) } {}
+    constexpr MLong(int64_t x) : x{ norm(x % getMod()) } {}
 
-    static i64 Mod;
-    constexpr static i64 getMod() {
+    static int64_t Mod;
+    constexpr static int64_t getMod() {
         if (P > 0) {
             return P;
         } else {
             return Mod;
         }
     }
-    constexpr static void setMod(i64 Mod_) {
+    constexpr static void setMod(int64_t Mod_) {
         Mod = Mod_;
     }
-    constexpr i64 norm(i64 x) const {
+    constexpr int64_t norm(int64_t x) const {
         if (x < 0) {
             x += getMod();
         }
@@ -100,10 +97,10 @@ struct MLong {
         }
         return x;
     }
-    constexpr i64 val() const {
+    constexpr int64_t val() const {
         return x;
     }
-    explicit constexpr operator i64() const {
+    explicit constexpr operator int64_t() const {
         return x;
     }
     constexpr MLong operator-() const {
@@ -151,7 +148,7 @@ struct MLong {
         return res;
     }
     friend constexpr std::istream& operator>>(std::istream& is, MLong& a) {
-        i64 v;
+        int64_t v;
         is >> v;
         a = MLong(v);
         return is;
@@ -168,7 +165,7 @@ struct MLong {
 };
 
 template<>
-i64 MLong<0LL>::Mod = P;
+int64_t MLong<0LL>::Mod = P;
 
 using mlong = MLong<0LL>;
 const mlong invB = mlong(B).inv();
@@ -213,7 +210,7 @@ struct Hash {
     mlong x;
     int siz;
     Hash(mlong x = 0, int siz = 0) : x(x), siz(siz) {}
-    mlong val() const {
+    int64_t val() const {
         return x.val();
     }
     constexpr friend Hash operator+(const Hash& a, const Hash& b) {
