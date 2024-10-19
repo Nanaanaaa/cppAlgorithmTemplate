@@ -312,7 +312,7 @@ struct RMQ {
 // Algorithms on Strings, Trees, and Sequences: Computer Science and
 // Computational Biology
 template <class T>
-auto Zfunction(const std::vector<T>& s) {
+std::vector<int> Zfunction(const std::vector<T>& s) {
     int n = int(s.size());
     if (n == 0) return {};
     std::vector<int> z(n);
@@ -327,7 +327,7 @@ auto Zfunction(const std::vector<T>& s) {
     return z;
 }
 
-auto Zfunction(std::string_views s) {
+std::vector<int> Zfunction(std::string_views s) {
     const int n = s.size();
     std::vector<int> s2(n);
     for (int i = 0; i < n; i++) {
@@ -337,7 +337,7 @@ auto Zfunction(std::string_views s) {
 }
 
 template <class T>
-auto kmp(const std::vector<T>& s) {
+std::vector<int> kmp(const std::vector<T>& s) {
     const int n = s.size();
     if (n == 0) return {};
     std::vector<int> f(n + 1);
@@ -351,7 +351,7 @@ auto kmp(const std::vector<T>& s) {
     return f;
 }
 
-auto kmp(std::string_view s) {
+std::vector<int> kmp(std::string_view s) {
     const int n = s.size();
     std::vector<int> s2(n);
     for (int i = 0; i < n; i++) {

@@ -13,7 +13,7 @@ struct BTrie : std::vector<Info> {
         int hi = std::numeric_limits<T>::digits - 1;
 
         for (int i = hi; i >= 0; i--) {
-            int d = x >> i & 1;
+            int d = __x >> i & 1;
             if (!(*this)[p][d]) {
                 (*this)[p][d] = newNode();
             }
@@ -28,7 +28,7 @@ struct BTrie : std::vector<Info> {
         int hi = std::numeric_limits<T>::digits - 1;
 
         for (int i = hi; i >= 0; i--) {
-            int d = x >> i & 1;
+            int d = __x >> i & 1;
             if ((*this)[p][!d]) {
                 ans |= T(1) << i;
                 p = (*this)[p][!d];
