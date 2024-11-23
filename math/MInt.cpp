@@ -20,14 +20,6 @@ constexpr uint64_t mulMod(uint64_t a, uint64_t b) {
     return res;
 }
 
-constexpr int64_t safeMod(int64_t x, int64_t m) {
-    x %= m;
-    if (x < 0) {
-        x += m;
-    }
-    return x;
-}
-
 template<std::unsigned_integral U, U P>
 struct ModIntBase {
 public:
@@ -118,6 +110,28 @@ public:
 
     constexpr U operator()() const {
         return val();
+    }
+
+    constexpr ModIntBase& operator++() {
+        *this += 1;
+        return *this;
+    }
+
+    constexpr ModIntBase operator++(int) {
+        ModIntBase temp = *this;
+        ++*this;
+        return temp;
+    }
+
+    constexpr ModIntBase& operator--() {
+        *this -= 1;
+        return *this;
+    }
+
+    constexpr ModIntBase operator--(int) {
+        ModIntBase temp = *this;
+        --*this;
+        return temp;
     }
 
     struct Formatter {
