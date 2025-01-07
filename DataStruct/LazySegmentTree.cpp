@@ -106,6 +106,69 @@ struct LazySegmentTree {
         }
     }
 
+    int findLast(int l, int r, auto&& pred) {
+        if (l == r) {
+            return r;
+        }
+
+        l += size;
+        r += size;
+        for (int i = log; i >= 1; i--) {
+            push(l >> i);
+        }
+
+        Info cur = Info();
+
+        do {
+            while (l % 2 == 0) {
+                l >>= 1;
+            }
+            if (!pred(cur + info[l])) {
+                while (l < size) {
+                    l <<= 1;
+                    if (pred(cur + info[l])) {
+                        cur = cur + info[l++];
+                    }
+                }
+                return l - size;
+            }
+            cur = cur + info[l++];
+        } while ((l & -l) != l && l < r);
+        return r - size;
+    }
+
+    int findFirst(int l, int r, auto&& pred) {
+        if (l == r) {
+            return l;
+        }
+
+        l += size;
+        r += size;
+        for (int i = log; i >= 1; i--) {
+            push((r - 1) >> i);
+        }
+
+        Info cur = Info();
+
+        do {
+            r--;
+            while (r > 1 && (r & 1)) {
+                r >>= 1;
+            }
+            if (!pred(info[r] + cur)) {
+                while (r < size) {
+                    r = 2 * r + 1;
+                    if (pred(info[r] + cur)) {
+                        cur = info[r--] + cur;
+                    }
+                }
+                return r + 1 - size;
+            }
+            cur = info[r] + cur;
+        } while ((r & -r) != r && l < r);
+        return l - size;
+    }
+
     void apply(int p, const Tag& t) {
         info[p].apply(t);
         if (p < size) {
