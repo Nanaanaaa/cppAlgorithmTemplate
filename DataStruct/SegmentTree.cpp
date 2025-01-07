@@ -1,128 +1,66 @@
-constexpr int lg(unsigned int x) {
-    return std::bit_width(x) - 1;
-}
-
 template <class Info>
 struct SegmentTree {
     int n;
-    std::vector<Info> tr;
-    SegmentTree() : n(0) {}
-    explicit SegmentTree(int n_, Info v_ = Info()) {
-        init(n_, v_);
+    int size;
+    int log;
+    std::vector<Info> info;
+
+    SegmentTree() :SegmentTree(0) {}
+    explicit SegmentTree(int n) : SegmentTree(std::vector(n, Info())) {}
+    explicit SegmentTree(const std::vector<Info>& v) : n(v.size()) {
+        size = std::__bit_ceil(n);
+        log = std::__countr_zero(size);
+        info.assign(size, Info());
+        info.insert(info.end(), v.begin(), v.end());
+        info.resize(2 * size, Info());
+
+        for (int i = size - 1; i >= 1; i--) {
+            pull(i);
+        }
     }
-    template<class T>
-    explicit SegmentTree(const std::vector<T>& init_) {
-        init(init_);
+
+    void modify(int p, const Info& v) {
+        p += size;
+        info[p] = v;
+        for (int i = 1; i <= log; i++) {
+            pull(p >> i);
+        }
     }
-    void init(int n_, Info v_ = Info()) {
-        init(std::vector(n_, v_));
+
+    constexpr Info operator[](int p) const {
+        return info[p + size];
     }
-    template<class T>
-    void init(const std::vector<T>& init_) {
-        n = init_.size();
-        tr.assign(4 << lg(n), Info());
-        auto build = [&](auto&& self, int p, int l, int r) {
-            if (r - l == 1) {
-                tr[p] = init_[l];
-                return;
+
+    constexpr Info operator()(int l, int r) const {
+        if (l == r) {
+            return Info();
+        }
+
+        l += size;
+        r += size;
+        Info a = Info(), b = Info();
+
+        while (l < r) {
+            if (l & 1) {
+                a = a + info[l++];
             }
-            int m = std::midpoint(l, r);
-            self(self, 2 * p, l, m);
-            self(self, 2 * p + 1, m, r);
-            pull(p);
-        };
-        build(build, 1, 0, n);
+            if (r & 1) {
+                b = info[--r] + b;
+            }
+            l >>= 1;
+            r >>= 1;
+        }
+        return a + b;
     }
 
     void pull(int p) {
-        tr[p] = tr[2 * p] + tr[2 * p + 1];
-    }
-
-    void modify(int p, int l, int r, int x, const Info& v) {
-        if (r - l == 1) {
-            tr[p] = v;
-            return;
-        }
-        int m = std::midpoint(l, r);
-        if (x < m) {
-            modify(2 * p, l, m, x, v);
-        } else {
-            modify(2 * p + 1, m, r, x, v);
-        }
-        pull(p);
-    }
-    void modify(int x, const Info& v) {
-        modify(1, 0, n, x, v);
-    }
-
-    Info rangeQuery(int p, int l, int r, int x, int y) {
-        if (l >= y || r <= x) {
-            return Info();
-        }
-        if (l >= x && r <= y) {
-            return tr[p];
-        }
-        int m = std::midpoint(l, r);
-        return rangeQuery(2 * p, l, m, x, y) + rangeQuery(2 * p + 1, m, r, x, y);
-    }
-    Info rangeQuery(int l, int r) {
-        return rangeQuery(1, 0, n, l, r);
-    }
-
-    int findFirst(int p, int l, int r, int x, int y, auto&& pred) {
-        if (l >= y || r <= x) {
-            return -1;
-        }
-        if (l >= x && r <= y && !pred(tr[p])) {
-            return -1;
-        }
-        if (r - l == 1) {
-            return l;
-        }
-        int m = std::midpoint(l, r);
-        int res = findFirst(2 * p, l, m, x, y, pred);
-        if (res == -1) {
-            res = findFirst(2 * p + 1, m, r, x, y, pred);
-        }
-        return res;
-    }
-    int findFirst(int x, int y, auto&& pred) {
-        return findFirst(1, 0, n, x, y, pred);
-    }
-
-    int findLast(int p, int l, int r, int x, int y, auto&& pred) {
-        if (l >= y || r <= x) {
-            return -1;
-        }
-        if (l >= x && r <= y && !pred(tr[p])) {
-            return -1;
-        }
-        if (r - l == 1) {
-            return l;
-        }
-        int m = std::midpoint(l, r);
-        int res = findLast(2 * p + 1, m, r, x, y, pred);
-        if (res == -1) {
-            res = findLast(2 * p, l, m, x, y, pred);
-        }
-        return res;
-    }
-    int findLast(int x, int y, auto&& pred) {
-        return findLast(1, 0, n, x, y, pred);
-    }
-
-    struct Proxy {
-        SegmentTree& seg;
-        int i;
-        Proxy(SegmentTree& seg, int i) :seg(seg), i(i) {}
-        constexpr void operator=(const Info& info) {
-            seg.modify(i, info);
-        }
-    };
-    constexpr Proxy operator[](int i) {
-        return Proxy(*this, i);
-    }
-    constexpr Info operator()(int i, int j) {
-        return rangeQuery(i, j);
+        info[p] = info[2 * p] + info[2 * p + 1];
     }
 };
+
+struct Info {};
+constexpr Info operator+(const Info& a, const Info& b) {
+    Info res{};
+    res = {};
+    return res;
+}

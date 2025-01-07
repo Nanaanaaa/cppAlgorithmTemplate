@@ -1,53 +1,120 @@
-constexpr int lg(unsigned int x) {
-    return std::bit_width(x) - 1;
-}
-
 template <class Info, class Tag>
 struct LazySegmentTree {
     int n;
-    std::vector<Info> tr;
+    int size;
+    int log;
+    std::vector<Info> info;
     std::vector<Tag> tag;
 
-    LazySegmentTree() : n(0) {}
+    LazySegmentTree() :LazySegmentTree(0) {}
+    explicit LazySegmentTree(int n) : LazySegmentTree(std::vector(n, Info())) {}
+    explicit LazySegmentTree(const std::vector<Info>& v) : n(v.size()) {
+        size = std::__bit_ceil(n);
+        log = std::__countr_zero(size);
+        info.assign(size, Info());
+        info.insert(info.end(), v.begin(), v.end());
+        info.resize(2 * size, Info());
+        tag.assign(size, Tag());
 
-    explicit LazySegmentTree(int n_, Info v_ = Info()) {
-        init(n_, v_);
+        for (int i = size - 1; i >= 1; i--) {
+            pull(i);
+        }
     }
 
-    template<class T>
-    explicit LazySegmentTree(const std::vector<T>& init_) {
-        init(init_);
+    void modify(int p, const Info& v) {
+        p += size;
+        for (int i = log; i >= 1; i--) {
+            push(p >> i);
+        }
+        info[p] = v;
+        for (int i = 1; i <= log; i++) {
+            pull(p >> i);
+        }
     }
 
-    void init(int n_, Info v_ = Info()) {
-        init(std::vector(n_, v_));
+    constexpr Info operator[](int p) const {
+        p += size;
+        for (int i = log; i >= 1; i--) {
+            push(p >> i);
+        }
+        return info[p];
     }
 
-    template<class T>
-    void init(const std::vector<T>& init_) {
-        n = init_.size();
-        tr.assign(4 << lg(n), Info());
-        tag.assign(4 << lg(n), Tag());
-        auto build = [&](auto&& self, int p, int l, int r) {
-            if (r - l == 1) {
-                tr[p] = init_[l];
-                return;
+    constexpr Info operator()(int l, int r) {
+        if (l == r) {
+            return Info();
+        }
+
+        Info a = Info(), b = Info();
+        l += size;
+        r += size;
+
+        for (int i = log; i >= 1; i--) {
+            if ((l >> i << i) != l) {
+                push(l >> i);
             }
-            int m = std::midpoint(l, r);
-            self(self, 2 * p, l, m);
-            self(self, 2 * p + 1, m, r);
-            pull(p);
-        };
-        build(build, 1, 0, n);
+            if ((r >> i << i) != r) {
+                push((r - 1) >> i);
+            }
+        }
+
+        while (l < r) {
+            if (l & 1) {
+                a = a + info[l++];
+            }
+            if (r & 1) {
+                b = info[--r] + b;
+            }
+            l >>= 1;
+            r >>= 1;
+        }
+        return a + b;
     }
 
-    void pull(int p) {
-        tr[p] = tr[2 * p] + tr[2 * p + 1];
+    void rangeApply(int l, int r, const Tag& t) {
+        if (l == r) {
+            return;
+        }
+        l += size;
+        r += size;
+
+        for (int i = log; i >= 1; i--) {
+            if ((l >> i << i) != l) {
+                push(l >> i);
+            }
+            if ((r >> i << i) != r) {
+                push((r - 1) >> i);
+            }
+        }
+
+        for (int x = l, y = r; x < y; x >>= 1, y >>= 1) {
+            if (x & 1) {
+                apply(x++, t);
+            }
+            if (y & 1) {
+                apply(--y, t);
+            }
+        }
+
+        for (int i = 1; i <= log; i++) {
+            if ((l >> i << i) != l) {
+                pull(l >> i);
+            }
+            if ((r >> i << i) != r) {
+                pull((r - 1) >> i);
+            }
+        }
     }
 
     void apply(int p, const Tag& t) {
-        tr[p].apply(t);
-        tag[p].apply(t);
+        info[p].apply(t);
+        if (p < size) {
+            tag[p].apply(t);
+        }
+    }
+
+    void pull(int p) {
+        info[p] = info[2 * p] + info[2 * p + 1];
     }
 
     void push(int p) {
@@ -55,140 +122,17 @@ struct LazySegmentTree {
         apply(2 * p + 1, tag[p]);
         tag[p] = Tag();
     }
-
-    void modify(int p, int l, int r, int x, const Info& v) {
-        if (r - l == 1) {
-            tr[p] = v;
-            return;
-        }
-        int m = std::midpoint(l, r);
-        push(p);
-        if (x < m) {
-            modify(2 * p, l, m, x, v);
-        } else {
-            modify(2 * p + 1, m, r, x, v);
-        }
-        pull(p);
-    }
-
-    void modify(int x, const Info& v) {
-        modify(1, 0, n, x, v);
-    }
-
-    Info rangeQuery(int p, int l, int r, int x, int y) {
-        if (l >= y || r <= x) {
-            return Info();
-        }
-        if (l >= x && r <= y) {
-            return tr[p];
-        }
-        int m = std::midpoint(l, r);
-        push(p);
-        return rangeQuery(2 * p, l, m, x, y) + rangeQuery(2 * p + 1, m, r, x, y);
-    }
-
-    Info rangeQuery(int l, int r) {
-        return rangeQuery(1, 0, n, l, r);
-    }
-
-    void rangeApply(int p, int l, int r, int x, int y, const Tag& t) {
-        if (l >= y || r <= x) {
-            return;
-        }
-        if (l >= x && r <= y) {
-            return apply(p, t);
-        }
-        int m = std::midpoint(l, r);
-        push(p);
-        rangeApply(2 * p, l, m, x, y, t);
-        rangeApply(2 * p + 1, m, r, x, y, t);
-        pull(p);
-    }
-
-    void rangeApply(int l, int r, const Tag& t) {
-        return rangeApply(1, 0, n, l, r, t);
-    }
-
-    int findFirst(int p, int l, int r, int x, int y, auto&& pred) {
-        if (l >= y || r <= x) {
-            return -1;
-        }
-        if (l >= x && r <= y && !pred(tr[p])) {
-            return -1;
-        }
-        if (r - l == 1) {
-            return l;
-        }
-        int m = std::midpoint(l, r);
-        push(p);
-        int res = findFirst(2 * p, l, m, x, y, pred);
-        if (res == -1) {
-            res = findFirst(2 * p + 1, m, r, x, y, pred);
-        }
-        return res;
-    }
-
-    int findFirst(int l, int r, auto&& pred) {
-        return findFirst(1, 0, n, l, r, pred);
-    }
-
-    int findLast(int p, int l, int r, int x, int y, auto&& pred) {
-        if (l >= y || r <= x) {
-            return -1;
-        }
-        if (l >= x && r <= y && !pred(tr[p])) {
-            return -1;
-        }
-        if (r - l == 1) {
-            return l;
-        }
-        int m = std::midpoint(l, r);
-        push(p);
-        int res = findLast(2 * p + 1, m, r, x, y, pred);
-        if (res == -1) {
-            res = findLast(2 * p, l, m, x, y, pred);
-        }
-        return res;
-    }
-
-    int findLast(int l, int r, auto&& pred) {
-        return findLast(1, 0, n, l, r, pred);
-    }
-
-    struct Proxy {
-        LazySegmentTree& seg;
-        int l, r;
-        std::optional<Info> val;
-
-        Proxy(LazySegmentTree& seg, int l, int r) : seg(seg), l(l), r(r), val(std::nullopt) {}
-
-        constexpr Info* operator->() {
-            if (!val) {
-                val = seg.rangeQuery(l, r);
-            }
-            return &(*val);
-        }
-
-        constexpr void operator=(const Info& info) {
-            if (r - l == 1) {
-                seg.modify(l, info);
-                val.reset();
-            } else {
-                throw std::invalid_argument("r - l must be equal to 1");
-            }
-        }
-
-        constexpr void operator+=(const Tag& tag) {
-            seg.rangeApply(l, r, tag);
-            val.reset();
-        }
-    };
-
-    constexpr Proxy operator[](int x) {
-        return Proxy(*this, x, x + 1);
-    }
-
-    constexpr Proxy operator()(int l, int r) {
-        return Proxy(*this, l, r);
-    }
 };
+
+struct Tag {
+    void apply(const Tag& t) {}
+};
+
+struct Info {
+    void apply(const Tag& t) {}
+};
+constexpr Info operator+(const Info& a, const Info& b) {
+    Info res{};
+    res = {};
+    return res;
+}
