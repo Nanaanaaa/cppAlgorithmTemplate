@@ -53,13 +53,13 @@ struct SegmentTree {
         return a + b;
     }
 
-    int findLast(int l, int r, auto&& pred) {
-        if (l == r) {
-            return r;
+    template<typename F>
+    int maxRight(int l, F&& pred) const {
+        if (l == n) {
+            return n;
         }
 
         l += size;
-        r += size;
         Info cur = Info();
 
         do {
@@ -76,16 +76,16 @@ struct SegmentTree {
                 return l - size;
             }
             cur = cur + info[l++];
-        } while ((l & -l) != l && l < r);
-        return r - size;
+        } while ((l & -l) != l);
+        return n;
     }
 
-    int findFirst(int l, int r, auto&& pred) {
-        if (l == r) {
-            return l;
+    template<typename F>
+    int minLeft(int r, F&& pred) const {
+        if (0 == r) {
+            return 0;
         }
 
-        l += size;
         r += size;
         Info cur = Info();
 
@@ -104,8 +104,8 @@ struct SegmentTree {
                 return r + 1 - size;
             }
             cur = info[r] + cur;
-        } while ((r & -r) != r && l < r);
-        return l - size;
+        } while ((r & -r) != r);
+        return 0;
     }
 
     void pull(int p) {
@@ -113,9 +113,11 @@ struct SegmentTree {
     }
 };
 
-struct Info {};
-constexpr Info operator+(const Info& a, const Info& b) {
-    Info res{};
-    res = {};
-    return res;
-}
+struct Info {
+
+    constexpr friend Info operator+(const Info& a, const Info& b) {
+        Info res{};
+        res = {};
+        return res;
+    }
+};

@@ -193,9 +193,9 @@ struct Tag {
 
 struct Info {
     void apply(const Tag& t) {}
+    constexpr friend Info operator+(const Info& a, const Info& b) {
+        Info res{};
+        res = {};
+        return res;
+    }
 };
-constexpr Info operator+(const Info& a, const Info& b) {
-    Info res{};
-    res = {};
-    return res;
-}
