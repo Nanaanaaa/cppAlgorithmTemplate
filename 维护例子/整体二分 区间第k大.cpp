@@ -1,3 +1,10 @@
+#include <bits/stdc++.h>
+
+namespace stdv = std::views;
+namespace stdr = std::ranges;
+
+using i64 = long long;
+
 template<typename T = int>
 class Fenwick {
 private:
@@ -87,3 +94,90 @@ public:
         return rangeSum(l, r);
     }
 };
+
+struct Query {
+    int l, r, k, id, type;
+};
+
+constexpr int V = 1e9 + 1;
+
+int main() {
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+
+    int n, q;
+    std::cin >> n >> q;
+
+    std::vector<Query> query(n + q);
+
+    std::vector<int> a(n);
+    for (int i = 0; i < n; i++) {
+        std::cin >> a[i];
+        query[i] = { a[i], 1, 0, i, 1 };
+    }
+
+    for (int i = 0; i < q; i++) {
+        int l, r, k;
+        std::cin >> l >> r >> k;
+        query[i + n] = { l - 1, r, k, i, 2 };
+    }
+
+    std::vector<int> ans(q);
+    Fenwick fen(n);
+
+    auto work = [&](auto&& work, int l, int r, int x, int y) {
+        if (x >= y) {
+            return;
+        }
+
+        if (r - l == 1) {
+            for (int i = x; i < y; i++) {
+                if (query[i].type == 2) {
+                    ans[query[i].id] = l;
+                }
+            }
+            return;
+        }
+
+        int m = (l + r) / 2;
+        std::vector<Query> ql, qr;
+
+        for (int i = x; i < y; i++) {
+            if (query[i].type == 1) {
+                if (query[i].l < m) {
+                    ql.push_back(query[i]);
+                    fen[query[i].id]++;
+                } else {
+                    qr.push_back(query[i]);
+                }
+            } else {
+                int s = fen(query[i].l, query[i].r);
+                if (query[i].k <= s) {
+                    ql.push_back(query[i]);
+                } else {
+                    query[i].k -= s;
+                    qr.push_back(query[i]);
+                }
+            }
+        }
+
+        for (auto q : ql) {
+            if (q.type == 1) {
+                fen[q.id]--;
+            }
+        }
+
+        stdr::copy(ql, query.begin() + x);
+        stdr::copy(qr, query.begin() + x + ql.size());
+
+        work(work, l, m, x, x + ql.size());
+        work(work, m, r, x + ql.size(), y);
+    };
+    work(work, 0, V, 0, n + q);
+
+    for (int i = 0; i < q; i++) {
+        std::cout << ans[i] << "\n";
+    }
+
+    return 0;
+}
