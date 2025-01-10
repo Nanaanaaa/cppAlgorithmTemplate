@@ -133,24 +133,9 @@ public:
         --*this;
         return temp;
     }
-
-    struct Formatter {
-        constexpr auto parse(std::format_parse_context& ctx) {
-            return ctx.begin();
-        }
-
-        template <typename FormatContext>
-        auto format(const ModIntBase& x, FormatContext& ctx) const {
-            return std::format_to(ctx.out(), "{}", x());
-        }
-    };
-
 private:
     U x;
 };
-
-template<std::unsigned_integral U, U P>
-struct std::formatter<ModIntBase<U, P>> : ModIntBase<U, P>::Formatter {};
 
 template<uint32_t P>
 using ModInt = ModIntBase<uint32_t, P>;
