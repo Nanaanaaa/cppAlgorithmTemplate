@@ -32,7 +32,7 @@ struct LazySegmentTree {
         }
     }
 
-    constexpr Info operator[](int p) const {
+    constexpr Info operator[](int p) {
         p += size;
         for (int i = log; i >= 1; i--) {
             push(p >> i);
@@ -106,13 +106,12 @@ struct LazySegmentTree {
         }
     }
 
-    int findLast(int l, int r, auto&& pred) {
-        if (l == r) {
-            return r;
+    int maxRight(int l, auto&& pred) {
+        if (l == n) {
+            return n;
         }
 
         l += size;
-        r += size;
         for (int i = log; i >= 1; i--) {
             push(l >> i);
         }
@@ -125,6 +124,7 @@ struct LazySegmentTree {
             }
             if (!pred(cur + info[l])) {
                 while (l < size) {
+                    push(l);
                     l <<= 1;
                     if (pred(cur + info[l])) {
                         cur = cur + info[l++];
@@ -133,16 +133,15 @@ struct LazySegmentTree {
                 return l - size;
             }
             cur = cur + info[l++];
-        } while ((l & -l) != l && l < r);
-        return r - size;
+        } while ((l & -l) != l);
+        return n;
     }
 
-    int findFirst(int l, int r, auto&& pred) {
-        if (l == r) {
-            return l;
+    int minLeft(int r, auto&& pred) {
+        if (r == 0) {
+            return 0;
         }
 
-        l += size;
         r += size;
         for (int i = log; i >= 1; i--) {
             push((r - 1) >> i);
@@ -157,6 +156,7 @@ struct LazySegmentTree {
             }
             if (!pred(info[r] + cur)) {
                 while (r < size) {
+                    push(r);
                     r = 2 * r + 1;
                     if (pred(info[r] + cur)) {
                         cur = info[r--] + cur;
@@ -165,8 +165,8 @@ struct LazySegmentTree {
                 return r + 1 - size;
             }
             cur = info[r] + cur;
-        } while ((r & -r) != r && l < r);
-        return l - size;
+        } while ((r & -r) != r);
+        return 0;
     }
 
     void apply(int p, const Tag& t) {

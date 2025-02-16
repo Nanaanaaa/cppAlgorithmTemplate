@@ -1,124 +1,163 @@
+using i64 = int64_t;
 template<class T>
-constexpr T power(T a, i64 b) {
-    T res = 1;
-    for (; b; b /= 2, a *= a) {
-        if (b % 2) {
+constexpr T power(T a, uint64_t b, T res = 1) {
+    for (; b != 0; b >>= 1, a *= a) {
+        if (b & 1) {
             res *= a;
         }
     }
     return res;
 }
 
-template<int P>
-struct MInt {
-    int x;
-    constexpr MInt() : x{} {}
-    constexpr MInt(i64 x) : x{ norm(x % getMod()) } {}
+template<uint32_t P>
+constexpr uint32_t mulMod(uint32_t a, uint32_t b) {
+    return uint64_t(a) * b % P;
+}
 
-    static int Mod;
-    constexpr static int getMod() {
-        if (P > 0) {
-            return P;
+template<uint64_t P>
+constexpr uint64_t mulMod(uint64_t a, uint64_t b) {
+    uint64_t res = a * b - uint64_t(1.L * a * b / P - 0.5L) * P;
+    res %= P;
+    return res;
+}
+
+template<std::unsigned_integral U, U P>
+struct ModIntBase {
+public:
+    constexpr ModIntBase() : x(0) {}
+    template<std::unsigned_integral T>
+    constexpr ModIntBase(T x_) : x(x_% mod()) {}
+    template<std::signed_integral T>
+    constexpr ModIntBase(T x_) {
+        using S = std::make_signed_t<T>;
+        S v = x_;
+        v %= S(mod());
+        if (v < 0) {
+            v += mod();
         }
-        else {
-            return Mod;
-        }
+        x = v;
     }
-    constexpr static void setMod(int Mod_) {
-        Mod = Mod_;
+
+    constexpr static U mod() {
+        return P;
     }
-    constexpr int norm(int x) const {
-        if (x < 0) {
-            x += getMod();
-        }
-        if (x >= getMod()) {
-            x -= getMod();
-        }
+
+    constexpr U val() const {
         return x;
     }
-    constexpr int val() const {
-        return x;
-    }
-    explicit constexpr operator int() const {
-        return x;
-    }
-    constexpr MInt operator-() const {
-        MInt res;
-        res.x = norm(getMod() - x);
+
+    constexpr ModIntBase operator-() const {
+        ModIntBase res;
+        res.x = (x == 0 ? 0 : mod() - x);
         return res;
     }
-    constexpr MInt inv() const {
-        assert(x != 0);
-        return power(*this, getMod() - 2);
+
+    constexpr ModIntBase inv() const {
+        return power(*this, mod() - 2);
     }
-    constexpr MInt& operator*=(MInt rhs)& {
-        x = 1LL * x * rhs.x % getMod();
+
+    constexpr ModIntBase& operator*=(const ModIntBase& rhs)& {
+        x = mulMod<mod()>(x, rhs.val());
         return *this;
     }
-    constexpr MInt& operator+=(MInt rhs)& {
-        x = norm(x + rhs.x);
+    constexpr ModIntBase& operator+=(const ModIntBase& rhs)& {
+        x += rhs.val();
+        if (x >= mod()) {
+            x -= mod();
+        }
         return *this;
     }
-    constexpr MInt& operator-=(MInt rhs)& {
-        x = norm(x - rhs.x);
+    constexpr ModIntBase& operator-=(const ModIntBase& rhs)& {
+        x -= rhs.val();
+        if (x >= mod()) {
+            x += mod();
+        }
         return *this;
     }
-    constexpr MInt& operator/=(MInt rhs)& {
+    constexpr ModIntBase& operator/=(const ModIntBase& rhs)& {
         return *this *= rhs.inv();
     }
-    friend constexpr MInt operator*(MInt lhs, MInt rhs) {
-        MInt res = lhs;
-        res *= rhs;
-        return res;
+
+    friend constexpr ModIntBase operator*(ModIntBase lhs, const ModIntBase& rhs) {
+        lhs *= rhs;
+        return lhs;
     }
-    friend constexpr MInt operator+(MInt lhs, MInt rhs) {
-        MInt res = lhs;
-        res += rhs;
-        return res;
+    friend constexpr ModIntBase operator+(ModIntBase lhs, const ModIntBase& rhs) {
+        lhs += rhs;
+        return lhs;
     }
-    friend constexpr MInt operator-(MInt lhs, MInt rhs) {
-        MInt res = lhs;
-        res -= rhs;
-        return res;
+    friend constexpr ModIntBase operator-(ModIntBase lhs, const ModIntBase& rhs) {
+        lhs -= rhs;
+        return lhs;
     }
-    friend constexpr MInt operator/(MInt lhs, MInt rhs) {
-        MInt res = lhs;
-        res /= rhs;
-        return res;
+    friend constexpr ModIntBase operator/(ModIntBase lhs, const ModIntBase& rhs) {
+        lhs /= rhs;
+        return lhs;
     }
-    friend constexpr std::istream& operator>>(std::istream& is, MInt& a) {
-        i64 v;
-        is >> v;
-        a = MInt(v);
+
+    friend constexpr std::istream& operator>>(std::istream& is, ModIntBase& a) {
+        int64_t i;
+        is >> i;
+        a = i;
         return is;
     }
-    friend constexpr std::ostream& operator<<(std::ostream& os, const MInt& a) {
+    friend constexpr std::ostream& operator<<(std::ostream& os, const ModIntBase& a) {
         return os << a.val();
     }
-    friend constexpr bool operator==(MInt lhs, MInt rhs) {
-        return lhs.val() == rhs.val();
+
+    friend constexpr std::strong_ordering operator<=>(ModIntBase lhs, ModIntBase rhs) {
+        return lhs.val() <=> rhs.val();
     }
-    friend constexpr bool operator!=(MInt lhs, MInt rhs) {
-        return lhs.val() != rhs.val();
+
+    constexpr U operator()() const {
+        return val();
     }
+
+    constexpr ModIntBase& operator++() {
+        *this += 1;
+        return *this;
+    }
+
+    constexpr ModIntBase operator++(int) {
+        ModIntBase temp = *this;
+        ++*this;
+        return temp;
+    }
+
+    constexpr ModIntBase& operator--() {
+        *this -= 1;
+        return *this;
+    }
+
+    constexpr ModIntBase operator--(int) {
+        ModIntBase temp = *this;
+        --*this;
+        return temp;
+    }
+private:
+    U x;
 };
 
-template<>
-int MInt<0>::Mod = 1;
+template<uint32_t P>
+using ModInt = ModIntBase<uint32_t, P>;
+template<uint64_t P>
+using ModInt64 = ModIntBase<uint64_t, P>;
+
+using modint1000000007 = ModInt<1000000007>;
+using modint998244353 = ModInt<998244353>;
 
 template<int V, int P>
-constexpr MInt<P> CInv = MInt<P>(V).inv();
+constexpr ModInt<P> CInv = ModInt<P>(V).inv();
 
 constexpr int P = 998244353;
-using Z = MInt<P>;
 
 std::vector<int> rev;
 template<int P>
-std::vector<MInt<P>> roots{ 0, 1 };
+std::vector<ModInt<P>> roots{ 0, 1 };
 
 template<int P>
-constexpr MInt<P> findPrimitiveRoot() {
-    MInt<P> i = 2;
+constexpr ModInt<P> findPrimitiveRoot() {
+    ModInt<P> i = 2;
     int k = __builtin_ctz(P - 1);
     while (true) {
         if (power(i, (P - 1) / 2) != 1) {
@@ -130,13 +169,15 @@ constexpr MInt<P> findPrimitiveRoot() {
 }
 
 template<int P>
-constexpr MInt<P> primitiveRoot = findPrimitiveRoot<P>();
+constexpr ModInt<P> primitiveRoot = findPrimitiveRoot<P>();
 
 template<>
-constexpr MInt<998244353> primitiveRoot<998244353> {31};
+constexpr ModInt<998244353> primitiveRoot<998244353> {31};
+template<int P>
+struct Poly;
 
 template<int P>
-constexpr void dft(std::vector<MInt<P>>& a) {
+constexpr void dft(Poly<P>& a) {
     int n = a.size();
 
     if (int(rev.size()) != n) {
@@ -167,8 +208,8 @@ constexpr void dft(std::vector<MInt<P>>& a) {
     for (int k = 1; k < n; k *= 2) {
         for (int i = 0; i < n; i += 2 * k) {
             for (int j = 0; j < k; j++) {
-                MInt<P> u = a[i + j];
-                MInt<P> v = a[i + j + k] * roots<P>[k + j];
+                ModInt<P> u = a[i + j];
+                ModInt<P> v = a[i + j + k] * roots<P>[k + j];
                 a[i + j] = u + v;
                 a[i + j + k] = u - v;
             }
@@ -177,19 +218,19 @@ constexpr void dft(std::vector<MInt<P>>& a) {
 }
 
 template<int P>
-constexpr void idft(std::vector<MInt<P>>& a) {
+constexpr void idft(Poly<P>& a) {
     int n = a.size();
     std::reverse(a.begin() + 1, a.end());
     dft(a);
-    MInt<P> inv = (1 - P) / n;
+    ModInt<P> inv = (1 - P) / n;
     for (int i = 0; i < n; i++) {
         a[i] *= inv;
     }
 }
 
 template<int P = 998244353>
-struct Poly : public std::vector<MInt<P>> {
-    using Value = MInt<P>;
+struct Poly : public std::vector<ModInt<P>> {
+    using Value = ModInt<P>;
 
     Poly() : std::vector<Value>() {}
     explicit constexpr Poly(int n) : std::vector<Value>(n) {}
@@ -212,11 +253,9 @@ struct Poly : public std::vector<MInt<P>> {
             auto b = *this;
             b.insert(b.begin(), k, 0);
             return b;
-        }
-        else if (this->size() <= -k) {
+        } else if (this->size() <= -k) {
             return Poly();
-        }
-        else {
+        } else {
             return Poly(this->begin() + (-k), this->end());
         }
     }
@@ -394,8 +433,7 @@ struct Poly : public std::vector<MInt<P>> {
         std::function<void(int, int, int)> build = [&](int p, int l, int r) {
             if (r - l == 1) {
                 q[p] = Poly{ 1, -x[l] };
-            }
-            else {
+            } else {
                 int m = (l + r) / 2;
                 build(2 * p, l, m);
                 build(2 * p + 1, m, r);
@@ -408,8 +446,7 @@ struct Poly : public std::vector<MInt<P>> {
                 if (l < int(ans.size())) {
                     ans[l] = num[0];
                 }
-            }
-            else {
+            } else {
                 int m = (l + r) / 2;
                 auto t = num.mulT(q[2 * p + 1]);
                 t.resize(m - l);
@@ -440,12 +477,11 @@ Poly<P> berlekampMassey(const Poly<P>& s) {
         if (f == -1) {
             c.resize(i + 1);
             f = i;
-        }
-        else {
+        } else {
             auto d = oldC;
             d *= -1;
             d.insert(d.begin(), 1);
-            MInt<P> df1 = 0;
+            ModInt<P> df1 = 0;
             for (int j = 1; j <= d.size(); j++) {
                 df1 += d[j - 1] * s[f + 1 - j];
             }
@@ -469,7 +505,7 @@ Poly<P> berlekampMassey(const Poly<P>& s) {
 }
 
 template<int P = 998244353>
-MInt<P> linearRecurrence(Poly<P> p, Poly<P> q, i64 n) {
+ModInt<P> linearRecurrence(Poly<P> p, Poly<P> q, i64 n) {
     int m = q.size() - 1;
     while (n > 0) {
         auto newq = q;
