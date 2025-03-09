@@ -1,6 +1,13 @@
+#include <bits/stdc++.h>
+
+namespace stdv = std::views;
+namespace stdr = std::ranges;
+
+using i64 = long long;
+
 template<typename Node>
 struct PersistentSegTree {
-    constexpr static int V = 1000000000;
+    constexpr static int V = 200000;
     int n;
     std::vector<Node*> node;
     Node* pool;
@@ -37,18 +44,14 @@ struct PersistentSegTree {
         node.emplace_back(update(ver, x, v));
     }
 
-    Node* update(Node* ver, auto x, auto v) {
-        return update(ver, 0, V + 1, x, v);
-    }
-
     Node* update(Node* p, auto l, auto r, auto x, auto v) {
         if (p != nullptr) {
             pool[idx] = *p;
         }
         p = &pool[idx++];
-        p->cnt += v;
 
         if (r - l == 1) {
+            p->min = v;
             return p;
         }
         auto m = std::midpoint(l, r);
@@ -57,29 +60,32 @@ struct PersistentSegTree {
         } else {
             p->r = update(p->r, m, r, x, v);
         }
+        p->min = std::min(p->l ? p->l->min : -1, p->r ? p->r->min : -1);
         return p;
     }
+    Node* update(Node* ver, auto x, auto v) {
+        return update(ver, 0, V + 1, x, v);
+    }
 
-    int query(Node* t1, Node* t2, auto l, auto r, int k) {
+    int query(Node* t, auto l, auto r, int x) {
         if (r - l == 1) {
             return l;
         }
-        int c = (t2 && t2->l ? t2->l->cnt : 0) - (t1 && t1->l ? t1->l->cnt : 0);
         auto m = std::midpoint(l, r);
-        if (k > c) {
-            return query(t1 ? t1->r : nullptr, t2 ? t2->r : nullptr, m, r, k - c);
+        if ((t && t->l ? t->l->min : -1) <= x) {
+            return query(t ? t->l : nullptr, l, m, x);
         }
-        return query(t1 ? t1->l : nullptr, t2 ? t2->l : nullptr, l, m, k);
+        return query(t ? t->r : nullptr, m, r, x);
     }
-    int query(int l, int r, int k) {
-        return query(node[l], node[r], 0, V + 1, k);
+    int query(Node* t, int x) {
+        return query(t, 0, V + 1, x);
     }
 };
 
 struct Node {
     Node* l = nullptr;
     Node* r = nullptr;
-    int cnt = 0;
+    int min = -1;
 
     Node() {}
     Node(Node* t) {
@@ -88,3 +94,32 @@ struct Node {
         }
     }
 };
+
+int main() {
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+
+    int n, m;
+    std::cin >> n >> m;
+
+    std::vector<int> a(n);
+    for (int i = 0; i < n; i++) {
+        std::cin >> a[i];
+        a[i] = std::min(a[i], n);
+    }
+
+    PersistentSegTree<Node> pseg(n);
+    for (int i = 0; i < n; i++) {
+        pseg.append(pseg.node[i], a[i], i + 1);
+    }
+
+    while (m--) {
+        int l, r;
+        std::cin >> l >> r;
+        l--;
+
+        std::cout << pseg.query(pseg.node[r], l) << "\n";
+    }
+
+    return 0;
+}
