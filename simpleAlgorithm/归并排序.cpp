@@ -1,10 +1,9 @@
-void mergeSort(int* a, int l, int r) {
+i64 mergeSort(const std::vector<int>& a, int l, int r) {
     if (r - l == 1) {
-        return;
+        return 0;
     }
     int m = (l + r) / 2;
-    mergeSort(a, l, m);
-    mergeSort(a, m, r);
+    i64 cnt = mergeSort(a, l, m) + mergeSort(a, m, r);
 
     int i = l, j = m;
     std::vector<int> t;
@@ -12,6 +11,7 @@ void mergeSort(int* a, int l, int r) {
         if (a[i] <= a[j]) {
             t.push_back(a[i++]);
         } else {
+            cnt += m - i;
             t.push_back(a[j++]);
         }
     }
@@ -24,4 +24,19 @@ void mergeSort(int* a, int l, int r) {
     for (int i = l, j = 0; i < r; i++, j++) {
         a[i] = t[j];
     }
+    return cnt;
+}
+
+template<typename RandomIt>
+void mergeSort(RandomIt l, RandomIt r) {
+    if (std::distance(l, r) == 1) {
+        return;
+    }
+
+    auto m = l + std::distance(l, r) / 2;
+
+    mergeSort(l, m);
+    mergeSort(m, r);
+
+    std::inplace_merge(l, m, r);
 }
