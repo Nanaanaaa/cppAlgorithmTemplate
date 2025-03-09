@@ -40,10 +40,16 @@ struct PersistentSegTree {
         return p;
     }
 
+    void append(int ver, auto x, auto v) {
+        node.emplace_back(update(ver, x, v));
+    }
     void append(Node* ver, auto x, auto v) {
         node.emplace_back(update(ver, x, v));
     }
 
+    Node* update(int ver, auto x, auto v) {
+        return update(node[ver], 0, V + 1, x, v);
+    }
     Node* update(Node* ver, auto x, auto v) {
         return update(ver, 0, V + 1, x, v);
     }
@@ -110,7 +116,7 @@ int main() {
 
     PersistentSegTree<Node> pseg(n);
     for (int i = 0; i < n; i++) {
-        pseg.append(pseg.node[i], a[i], a[i]);
+        pseg.append(i, a[i], a[i]);
     }
 
     int q;
