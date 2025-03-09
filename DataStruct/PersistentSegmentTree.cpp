@@ -67,6 +67,10 @@ struct PersistentSegTree {
         return p;
     }
 
+    void modify(int x, Node* t) {
+        node[x] = t;
+    }
+
     int query(Node* t1, Node* t2, auto l, auto r, int k) {
         if (r - l == 1) {
             return l;
