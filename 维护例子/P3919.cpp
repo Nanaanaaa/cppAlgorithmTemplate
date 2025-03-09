@@ -22,7 +22,7 @@ struct PersistentSegTree {
     template<typename T>
     PersistentSegTree(const std::vector<T>& init_) : n(init_.size()), idx(0) {
         pool = static_cast<Node*>(std::calloc(2 * n * (std::__lg(V) + 1), sizeof(Node)));
-        node.resize(n + 1);
+        node.reserve(n + 1);
         for (int i = 0; i < n; i++) {
             node[i + 1] = add(node[i], 0, V + 1, init_[i]);
         }
