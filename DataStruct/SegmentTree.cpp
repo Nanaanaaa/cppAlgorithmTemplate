@@ -96,7 +96,7 @@ struct SegmentTree {
             }
             if (!pred(info[r] + cur)) {
                 while (r < size) {
-                    r = 2 * r + 1;
+                    r = r << 1 | 1;
                     if (pred(info[r] + cur)) {
                         cur = info[r--] + cur;
                     }
@@ -109,7 +109,7 @@ struct SegmentTree {
     }
 
     void pull(int p) {
-        info[p] = info[2 * p] + info[2 * p + 1];
+        info[p] = info[p << 1] + info[p << 1 | 1];
     }
 };
 

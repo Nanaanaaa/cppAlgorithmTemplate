@@ -9,10 +9,9 @@ void mergeSort(int* a, int l, int r) {
     int i = l, j = m;
     std::vector<int> t;
     while (i < m && j < r) {
-        if (a[i] < a[j]) {
+        if (a[i] <= a[j]) {
             t.push_back(a[i++]);
-        }
-        else {
+        } else {
             t.push_back(a[j++]);
         }
     }

@@ -157,7 +157,7 @@ struct LazySegmentTree {
             if (!pred(info[r] + cur)) {
                 while (r < size) {
                     push(r);
-                    r = 2 * r + 1;
+                    r = r << 1 | 1;
                     if (pred(info[r] + cur)) {
                         cur = info[r--] + cur;
                     }
@@ -177,12 +177,12 @@ struct LazySegmentTree {
     }
 
     void pull(int p) {
-        info[p] = info[2 * p] + info[2 * p + 1];
+        info[p] = info[p << 1] + info[p << 1 | 1];
     }
 
     void push(int p) {
-        apply(2 * p, tag[p]);
-        apply(2 * p + 1, tag[p]);
+        apply(p << 1, tag[p]);
+        apply(p << 1 | 1, tag[p]);
         tag[p] = Tag();
     }
 };
