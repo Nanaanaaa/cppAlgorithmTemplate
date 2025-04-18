@@ -77,6 +77,9 @@ public:
         }
         return x;
     }
+    int size() {
+        return this->n;
+    }
     constexpr Proxy operator[](int i) {
         return Proxy{ *this, i };
     }
