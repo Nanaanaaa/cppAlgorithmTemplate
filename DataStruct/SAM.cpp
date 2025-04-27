@@ -45,4 +45,27 @@ struct SAM {
         t[cur].link = extend(p, c);
         return cur;
     }
+    int extend(int p, char c, char offset = 'a') {
+        return extend(p, c - offset);
+    }
+
+    int next(int p, int x) {
+        return t[p].next[x];
+    }
+
+    int next(int p, char c, char offset = 'a') {
+        return next(p, c - 'a');
+    }
+
+    int link(int p) {
+        return t[p].link;
+    }
+
+    int len(int p) {
+        return t[p].len;
+    }
+
+    int size() {
+        return t.size();
+    }
 };

@@ -1,54 +1,52 @@
-template<class Info>
-struct Trie : std::vector<Info> {
-    Trie(int n = 0) { this->reserve(n + 1); newNode(); }
+template<typename T = int>
+struct Trie {
+    constexpr static int hi = std::numeric_limits<T>::digits;
 
-    int newNode() {
-        this->emplace_back();
-        return this->size() - 1;
+    struct Node {
+        std::array<Node*, 2> ch;
+        Node() : ch{} {}
+    };
+
+    Node* root;
+    Node* pool;
+    int tot;
+
+    Trie(int n) {
+        init(n);
+    }
+    ~Trie() {
+        delete root;
+        delete[] pool;
     }
 
-    void add(std::string_view s) {
-        int p = 0;
-        for (auto c : s) {
-            c -= 'a';
-            if (!(*this)[p][c]) {
-                (*this)[p][c] = newNode();
+    void init(int n) {
+        tot = 0;
+        root = new Node;
+        pool = new Node[n * hi + 1];
+    }
+
+    void add(T x) {
+        Node* p = root;
+        for (int i = hi - 1; i >= 0; i--) {
+            bool d = x >> i & 1;
+            if (p->ch[d] == nullptr) {
+                p->ch[d] = &pool[tot++];
             }
-            p = (*this)[p][c];
-            (*this)[p].siz++;
+            p = p->ch[d];
         }
-        (*this)[p].cnt++;
     }
 
-    void add(const char* s) {
-        add(std::string_view(s));
-    }
-
-    int query(std::string_view s) {
-        int p = 0;
-        for (auto c : s) {
-            c -= 'a';
-            p = (*this)[p][c];
-            if (p == 0) {
-                return 0;
+    T query(T x) {
+        Node* p = root;
+        T ans = 0;
+        for (int i = hi - 1; i >= 0; i--) {
+            bool d = x >> i & 1;
+            if (p->ch[d ^ 1] != nullptr) {
+                ans |= T(1) << i;
+                d ^= 1;
             }
+            p = p->ch[d];
         }
-        return (*this)[p].cnt;
-    }
-
-    int query(const char* s) {
-        return query(std::string_view(s));
-    }
-};
-
-struct Info {
-    constexpr static int ALPHABET_SIZE = 26;
-
-    int cnt = 0;
-    int siz = 0;
-    std::array<int, ALPHABET_SIZE> tr{};
-
-    constexpr int& operator[](int i) {
-        return (*this)[i];
+        return ans;
     }
 };

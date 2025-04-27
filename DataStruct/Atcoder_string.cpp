@@ -210,7 +210,7 @@ std::vector<int> lcp_array(const std::vector<T>& s,
     for (int i = 0; i < n; i++) {
         rnk[sa[i]] = i;
     }
-    std::vector<int> lcp(n - 1);
+    std::vector<int> height(n - 1);
     int h = 0;
     for (int i = 0; i < n; i++) {
         if (h > 0) h--;
@@ -219,9 +219,9 @@ std::vector<int> lcp_array(const std::vector<T>& s,
         for (; j + h < n && i + h < n; h++) {
             if (s[j + h] != s[i + h]) break;
         }
-        lcp[rnk[i] - 1] = h;
+        height[rnk[i] - 1] = h;
     }
-    return lcp;
+    return height;
 }
 
 std::vector<int> lcp_array(const std::string& s, const std::vector<int>& sa) {

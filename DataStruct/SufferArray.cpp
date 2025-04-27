@@ -1,20 +1,20 @@
 struct SuffixArray {
     const int n;
-    std::vector<int> sa, rk, lc;
+    std::vector<int> sa, rnk, height;
     SuffixArray(std::string_view s) :n(s.size()) {
         sa.resize(n);
-        lc.resize(n - 1);
-        rk.resize(n);
+        height.resize(n - 1);
+        rnk.resize(n);
         std::iota(sa.begin(), sa.end(), 0);
         std::sort(sa.begin(), sa.end(), [&](int a, int b) {return s[a] < s[b];});
-        rk[sa[0]] = 0;
+        rnk[sa[0]] = 0;
         for (int i = 0; i < n - 1; i++) {
-            rk[sa[i + 1]] = rk[sa[i]] + (s[sa[i + 1]] != s[sa[i]]);
+            rnk[sa[i + 1]] = rnk[sa[i]] + (s[sa[i + 1]] != s[sa[i]]);
         }
         int k = 1;
         std::vector<int> tmp, cnt(n);
         tmp.reserve(n);
-        for (; rk[sa[n - 1]] < n - 1; k *= 2) {
+        for (; rnk[sa[n - 1]] < n - 1; k *= 2) {
             tmp.clear();
             for (int i = 0; i < k; i++) {
                 tmp.push_back(n - k + i);
@@ -26,28 +26,28 @@ struct SuffixArray {
             }
             std::fill(cnt.begin(), cnt.end(), 0);
             for (int i = 0; i < n; i++) {
-                cnt[rk[i]]++;
+                cnt[rnk[i]]++;
             }
             for (int i = 0; i < n - 1; i++) {
                 cnt[i + 1] += cnt[i];
             }
             for (int i = n - 1; i >= 0; i--) {
-                sa[--cnt[rk[tmp[i]]]] = tmp[i];
+                sa[--cnt[rnk[tmp[i]]]] = tmp[i];
             }
-            std::swap(rk, tmp);
-            rk[sa[0]] = 0;
+            std::swap(rnk, tmp);
+            rnk[sa[0]] = 0;
             for (int i = 0; i < n - 1; i++) {
                 auto t = (tmp[sa[i]] < tmp[sa[i + 1]] || sa[i] + k == n || tmp[sa[i] + k] < tmp[sa[i + 1] + k]);
-                rk[sa[i + 1]] = rk[sa[i]] + t;
+                rnk[sa[i + 1]] = rnk[sa[i]] + t;
             }
         }
 
         for (int i = 0, j = 0; i < n; i++) {
-            if (rk[i] == 0) {
+            if (rnk[i] == 0) {
                 j = 0;
             } else {
-                for (j -= j > 0; i + j < n && sa[rk[i] - 1] + j < n && s[i + j] == s[sa[rk[i] - 1] + j]; j++);
-                lc[rk[i] - 1] = j;
+                for (j -= j > 0; i + j < n && sa[rnk[i] - 1] + j < n && s[i + j] == s[sa[rnk[i] - 1] + j]; j++);
+                height[rnk[i] - 1] = j;
             }
         }
     }

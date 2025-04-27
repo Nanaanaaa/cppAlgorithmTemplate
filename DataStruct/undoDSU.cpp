@@ -1,43 +1,44 @@
-struct UndoDSU {
-    int n;
-    std::vector<int> p, siz, rank;
-    std::vector<std::tuple<int, int, int>> stk;
-    
-    UndoDSU(int n) :n(n), p(n), siz(n, 1), rank(n) {
-        std::iota(p.begin(), p.end(), 0);
+struct DSU {
+    std::vector<int> siz;
+    std::vector<int> f;
+    std::vector<std::array<int, 2>> his;
+
+    DSU(int n) : siz(n + 1, 1), f(n + 1) {
+        std::iota(f.begin(), f.end(), 0);
     }
 
     int find(int x) {
-        if (p[x] == x) {
-            return x;
+        while (f[x] != x) {
+            x = f[x];
         }
-        return find(p[x]);
+        return x;
     }
 
-    bool equal(int x, int y) {
-        return find(x) == find(y);
-    }
-
-    void merge(int x, int y) {
-        x = find(x), y = find(y);
+    bool merge(int x, int y) {
+        x = find(x);
+        y = find(y);
         if (x == y) {
-            return;
+            return false;
         }
-        if (rank[x] < rank[y]) {
+        if (siz[x] < siz[y]) {
             std::swap(x, y);
         }
-        siz[x] += y;
-        p[y] = x;
-        stk.emplace_back(x, y, rank[x] == rank[y]);
-        if (rank[x] == rank[y]) {
-            rank[x]++;
-        }
+        his.push_back({ x, y });
+        siz[x] += siz[y];
+        f[y] = x;
+        return true;
     }
 
-    void undo() {
-        auto [x, y, e] = stk.back();
-        rank[x] -= e;
-        p[y] = y;
-        stk.pop_back();
+    int time() {
+        return his.size();
+    }
+
+    void revert(int tm) {
+        while (his.size() > tm) {
+            auto [x, y] = his.back();
+            his.pop_back();
+            f[y] = y;
+            siz[x] -= siz[y];
+        }
     }
 };
