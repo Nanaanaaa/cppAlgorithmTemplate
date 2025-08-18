@@ -185,7 +185,7 @@ public:
     constexpr uint32_t operator()() const {
         return val();
     }
-
+#if __cplusplus > 202002L
     struct Formatter {
         constexpr auto parse(std::format_parse_context& ctx) {
             return ctx.begin();
@@ -196,7 +196,7 @@ public:
             return std::format_to(ctx.out(), "{}", x());
         }
     };
-
+#endif
 private:
     uint32_t x;
     static Barrett bt;
@@ -207,4 +207,4 @@ Barrett DynModInt<Id>::bt = 998244353;
 template<uint32_t Id>
 struct std::formatter<DynModInt<Id>> : DynModInt<Id>::Formatter {};
 
-using modint = DynModInt<0>;
+using mint = DynModInt<0>;

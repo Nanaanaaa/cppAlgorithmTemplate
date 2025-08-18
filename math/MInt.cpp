@@ -133,6 +133,19 @@ public:
         --*this;
         return temp;
     }
+
+#if __cplusplus > 202002L
+    struct Formatter {
+        constexpr auto parse(std::format_parse_context& ctx) {
+            return ctx.begin();
+        }
+
+        template <typename FormatContext>
+        auto format(const DynModInt& x, FormatContext& ctx) const {
+            return std::format_to(ctx.out(), "{}", x());
+        }
+    };
+#endif
 private:
     U x;
 };

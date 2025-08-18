@@ -114,7 +114,6 @@ struct SegmentTree {
 };
 
 struct Info {
-
     constexpr friend Info operator+(const Info& a, const Info& b) {
         Info res{};
         res = {};

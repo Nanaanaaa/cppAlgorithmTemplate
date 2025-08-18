@@ -23,10 +23,10 @@ struct PAM {
         t.emplace_back();
         return t.size() - 1;
     }
-    bool add(char c) {
+    bool add(char c, char offset = 'a') {
         int pos = s.size();
         s += c;
-        int let = c - 'a';
+        int let = c - offset;
         int cur = suff, curlen = 0;
         while (true) {
             curlen = t[cur].len;
@@ -67,6 +67,12 @@ struct PAM {
     }
     int len(int p) {
         return t[p].len;
+    }
+    int cnt(int p) {
+        return t[p].cnt;
+    }
+    int maxlen() {
+        return t[suff].len;
     }
     int size() {
         return t.size();

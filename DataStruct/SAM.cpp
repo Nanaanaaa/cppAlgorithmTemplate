@@ -54,7 +54,7 @@ struct SAM {
     }
 
     int next(int p, char c, char offset = 'a') {
-        return next(p, c - 'a');
+        return next(p, c - offset);
     }
 
     int link(int p) {
