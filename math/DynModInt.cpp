@@ -41,7 +41,7 @@ constexpr std::pair<int64_t, int64_t> invGcd(int64_t a, int64_t b) {
     return { s, m0 };
 }
 
-struct Barrett {
+class Barrett {
 public:
     Barrett(uint32_t m_) : m(m_), im((uint64_t)(-1) / m_ + 1) {}
 
@@ -57,7 +57,7 @@ public:
 
         uint32_t v = uint32_t(z - x * m);
         if (m <= v) {
-            v += m;
+            v -= m;
         }
         return v;
     }
@@ -68,7 +68,7 @@ private:
 };
 
 template<uint32_t Id>
-struct DynModInt {
+class DynModInt {
 public:
     constexpr DynModInt() : x(0) {}
     template<std::unsigned_integral T>
@@ -159,6 +159,12 @@ public:
     friend constexpr std::strong_ordering operator<=>(DynModInt lhs, DynModInt rhs) {
         return lhs.val() <=> rhs.val();
     }
+    friend constexpr bool operator==(DynModInt lhs, DynModInt rhs) {
+        return lhs.val() == rhs.val();
+    }
+    friend constexpr bool operator!=(DynModInt lhs, DynModInt rhs) {
+        return lhs.val() != rhs.val();
+    }
 
     constexpr DynModInt& operator++() {
         *this += 1;
@@ -185,18 +191,18 @@ public:
     constexpr uint32_t operator()() const {
         return val();
     }
-#if __cplusplus > 202002L
-    struct Formatter {
-        constexpr auto parse(std::format_parse_context& ctx) {
-            return ctx.begin();
-        }
 
-        template <typename FormatContext>
-        auto format(const DynModInt& x, FormatContext& ctx) const {
-            return std::format_to(ctx.out(), "{}", x());
-        }
-    };
-#endif
+    constexpr DynModInt pow(uint64_t e) const {
+        return power(*this, e);
+    }
+
+    friend constexpr DynModInt operator^(DynModInt a, uint64_t e) {
+        return power(a, e);
+    }
+
+    friend constexpr DynModInt pow(DynModInt a, uint64_t e) {
+        return power(a, e);
+    }
 private:
     uint32_t x;
     static Barrett bt;
@@ -204,7 +210,26 @@ private:
 
 template<uint32_t Id>
 Barrett DynModInt<Id>::bt = 998244353;
-template<uint32_t Id>
-struct std::formatter<DynModInt<Id>> : DynModInt<Id>::Formatter {};
 
 using mint = DynModInt<0>;
+
+inline constexpr mint operator "" _Z(uint64_t v) {
+    return mint(v);
+}
+inline constexpr mint operator "" _z(uint64_t v) {
+    return mint(v);
+}
+
+#if __cplusplus > 202002L
+template<uint32_t Id>
+struct std::formatter<DynModInt<Id>> {
+    constexpr auto parse(std::format_parse_context& ctx) {
+        return ctx.begin();
+    }
+
+    template<typename FormatContext>
+    auto format(const DynModInt<Id>& x, FormatContext& ctx) const {
+        return std::format_to(ctx.out(), "{}", x());
+    }
+};
+#endif

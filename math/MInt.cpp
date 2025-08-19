@@ -1,7 +1,7 @@
 template<class T>
-constexpr T power(T a, uint64_t b, T res = 1) {
-    for (; b != 0; b >>= 1, a *= a) {
-        if (b & 1) {
+constexpr T power(T a, uint64_t e, T res = T(1)) {
+    for (; e != 0; e >>= 1, a *= a) {
+        if (e & 1) {
             res *= a;
         }
     }
@@ -108,6 +108,14 @@ public:
         return lhs.val() <=> rhs.val();
     }
 
+    friend constexpr bool operator==(ModIntBase lhs, ModIntBase rhs) {
+        return lhs.val() == rhs.val();
+    }
+
+    friend constexpr bool operator!=(ModIntBase lhs, ModIntBase rhs) {
+        return lhs.val() != rhs.val();
+    }
+
     constexpr U operator()() const {
         return val();
     }
@@ -134,18 +142,17 @@ public:
         return temp;
     }
 
-#if __cplusplus > 202002L
-    struct Formatter {
-        constexpr auto parse(std::format_parse_context& ctx) {
-            return ctx.begin();
-        }
+    constexpr ModIntBase pow(uint64_t e) const {
+        return power(*this, e);
+    }
 
-        template <typename FormatContext>
-        auto format(const DynModInt& x, FormatContext& ctx) const {
-            return std::format_to(ctx.out(), "{}", x());
-        }
-    };
-#endif
+    friend constexpr ModIntBase operator^(ModIntBase a, uint64_t e) {
+        return power(a, e);
+    }
+
+    friend constexpr ModIntBase pow(ModIntBase a, uint64_t e) {
+        return power(a, e);
+    }
 private:
     U x;
 };
@@ -159,3 +166,24 @@ using modint1000000007 = ModInt<1000000007>;
 using modint998244353 = ModInt<998244353>;
 
 using mint = modint998244353;
+
+inline constexpr mint operator "" _Z(uint64_t v) {
+    return mint(v);
+}
+inline constexpr mint operator "" _z(uint64_t v) {
+    return mint(v);
+}
+
+#if __cplusplus > 202002L
+template<std::unsigned_integral U, U P>
+struct std::formatter<ModIntBase<U, P>> {
+    constexpr auto parse(std::format_parse_context& ctx) {
+        return ctx.begin();
+    }
+
+    template<typename FormatContext>
+    auto format(const ModIntBase<U, P>& x, FormatContext& ctx) const {
+        return std::format_to(ctx.out(), "{}", x());
+    }
+};
+#endif

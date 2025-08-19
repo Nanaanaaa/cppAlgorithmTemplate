@@ -1,11 +1,16 @@
-namespace comb {
-    int n;
-    std::vector<mint> _fac{ 1 };
-    std::vector<mint> _invfac{ 1 };
-    std::vector<mint> _inv;
+template<class T>
+class Comb {
+private:
+    inline static int n = 0;
+    inline static std::vector<T> _fac{ 1 };
+    inline static std::vector<T> _invfac{ 1 };
+    inline static std::vector<T> _inv{};
+public:
+    static void init(int m) {
+        if (m <= n) {
+            return;
+        }
 
-    void init(int m) {
-        if (m <= n) return;
         _fac.resize(m + 1);
         _invfac.resize(m + 1);
         _inv.resize(m + 1);
@@ -20,28 +25,29 @@ namespace comb {
         }
         n = m;
     }
-
-    mint fac(int m) {
-        if (m < 0) return 0;
-        if (m > n) init(2 * m);
-        return _fac[m];
+    static void extend(int m) {
+        if (m > n) {
+            init(2 * m);
+        }
     }
-    mint invfac(int m) {
-        if (m < 0) return 0;
-        if (m > n) init(2 * m);
-        return _invfac[m];
+    static T fac(int m) {
+        extend(m);
+        return m < 0 ? 0 : _fac[m];
     }
-    mint inv(int m) {
-        if (m < 0) return 0;
-        if (m > n) init(2 * m);
-        return _inv[m];
+    static T invfac(int m) {
+        extend(m);
+        return m < 0 ? 0 : _invfac[m];
     }
-    mint binom(int n, int m) {
-        if (n < m || m < 0) return 0;
-        return fac(n) * invfac(m) * invfac(n - m);
+    static T inv(int m) {
+        extend(m);
+        return m < 0 ? 0 : _inv[m];
     }
-    mint perm(int n, int m) {
-        if (n < m || m < 0) return 0;
-        return fac(n) * invfac(n - m);
+    static T binom(int n, int m) {
+        return (n < m || m < 0) ? 0 : fac(n) * invfac(m) * invfac(n - m);
+    }
+    static T perm(int n, int m) {
+        return (n < m || m < 0) ? 0 : fac(n) * invfac(n - m);
     }
 };
+
+using comb = Comb<mint>;
