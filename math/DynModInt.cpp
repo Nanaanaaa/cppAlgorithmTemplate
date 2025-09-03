@@ -1,7 +1,7 @@
 template<class T>
-constexpr T power(T a, uint64_t b, T res = 1) {
-    for (; b != 0; b >>= 1, a *= a) {
-        if (b & 1) {
+constexpr T power(T a, uint64_t e, T res = T(1)) {
+    for (; e != 0; e >>= 1, a *= a) {
+        if (e & 1) {
             res *= a;
         }
     }
@@ -43,7 +43,9 @@ constexpr std::pair<int64_t, int64_t> invGcd(int64_t a, int64_t b) {
 
 class Barrett {
 public:
-    Barrett(uint32_t m_) : m(m_), im((uint64_t)(-1) / m_ + 1) {}
+    explicit Barrett(uint32_t m_) : m(m_), im((uint64_t)(-1) / m_ + 1) {
+        assert(m_ >= 1);
+    }
 
     constexpr uint32_t mod() const {
         return m;
@@ -84,7 +86,7 @@ public:
     }
 
     constexpr static void setMod(uint32_t m) {
-        bt = m;
+        bt = Barrett(m);
     }
 
     static uint32_t mod() {
@@ -205,18 +207,15 @@ public:
     }
 private:
     uint32_t x;
-    static Barrett bt;
+    inline static Barrett bt = Barrett(998244353);
 };
-
-template<uint32_t Id>
-Barrett DynModInt<Id>::bt = 998244353;
 
 using mint = DynModInt<0>;
 
-inline constexpr mint operator "" _Z(uint64_t v) {
+inline constexpr mint operator "" _Z(unsigned long long v) {
     return mint(v);
 }
-inline constexpr mint operator "" _z(uint64_t v) {
+inline constexpr mint operator "" _z(unsigned long long v) {
     return mint(v);
 }
 

@@ -1,224 +1,248 @@
-constexpr int64_t mul(int64_t a, int64_t b, int64_t p) {
-    int64_t res = a * b - int64_t(1.L * a * b / p) * p;
-    res %= p;
-    if (res < 0) {
-        res += p;
-    }
-    return res;
-}
-
 template<class T>
-constexpr T power(T base, int64_t exp) {
-    T res{ 1 };
-    for (; exp; exp >>= 1, base *= base) {
-        if (exp & 1) {
-            res *= base;
+constexpr T power(T a, uint64_t e, T res = T(1)) {
+    for (; e != 0; e >>= 1, a *= a) {
+        if (e & 1) {
+            res *= a;
         }
     }
     return res;
 }
 
-constexpr int64_t power(int64_t a, int64_t b, int64_t p) {
-    int64_t res = 1 % p;
-    for (; b; b >>= 1, a = mul(a, a, p)) {
-        if (b & 1) {
-            res = mul(res, a, p);
-        }
-    }
+template<uint32_t P>
+constexpr uint32_t mulMod(uint32_t a, uint32_t b) {
+    return uint64_t(a) * b % P;
+}
+
+template<uint64_t P>
+constexpr uint64_t mulMod(uint64_t a, uint64_t b) {
+    uint64_t res = a * b - uint64_t(1.L * a * b / P - 0.5L) * P;
+    res %= P;
     return res;
 }
 
-bool isprime(int64_t n) {
-    if (n < 2) {
-        return false;
+template<std::unsigned_integral U, U P>
+class ModIntBase {
+public:
+    constexpr ModIntBase() : x(0) {}
+    template<std::unsigned_integral T>
+    constexpr ModIntBase(T x_) : x(x_% mod()) {}
+    template<std::signed_integral T>
+    constexpr ModIntBase(T x_) {
+        using S = std::make_signed_t<T>;
+        S v = x_;
+        v %= S(mod());
+        if (v < 0) {
+            v += mod();
+        }
+        x = v;
     }
-    static constexpr int A[] = { 2, 3, 5, 7, 11, 13, 17, 19, 23 };
-    const int s = std::__countr_zero(n - 1);
-    const int64_t d = (n - 1) >> s;
 
-    for (auto&& a : A) {
-        if (a == n) {
-            return true;
-        }
-        int64_t x = power(a, d, n);
-        if (x == 1 || x == n - 1) {
-            continue;
-        }
-        bool ok = false;
-        for (int i = 0; i < s - 1; i++) {
-            x = mul(x, x, n);
-            if (x == n - 1) {
-                ok = true;
-                break;
-            }
-        }
-        if (!ok) {
-            return false;
-        }
+    constexpr static U mod() {
+        return P;
     }
-    return true;
-}
 
-int64_t findPrime(int64_t n) {
-    while (!isprime(n)) {
-        n++;
-    }
-    return n;
-}
-
-std::mt19937 rnd(std::chrono::steady_clock::now().time_since_epoch().count());
-constexpr int64_t __M = 1e18;
-const int64_t P = findPrime(rnd() % __M + __M);
-const int64_t B = findPrime(rnd() % P + __M);
-
-template<int64_t P>
-struct MLong {
-    int64_t x;
-    constexpr MLong() : x{} {}
-    constexpr MLong(int64_t x) : x{ norm(x % getMod()) } {}
-
-    static int64_t Mod;
-    constexpr static int64_t getMod() {
-        if (P > 0) {
-            return P;
-        } else {
-            return Mod;
-        }
-    }
-    constexpr static void setMod(int64_t Mod_) {
-        Mod = Mod_;
-    }
-    constexpr int64_t norm(int64_t x) const {
-        if (x < 0) {
-            x += getMod();
-        }
-        if (x >= getMod()) {
-            x -= getMod();
-        }
+    constexpr U val() const {
         return x;
     }
-    constexpr int64_t val() const {
-        return x;
-    }
-    explicit constexpr operator int64_t() const {
-        return x;
-    }
-    constexpr MLong operator-() const {
-        MLong res;
-        res.x = norm(getMod() - x);
+
+    constexpr ModIntBase operator-() const {
+        ModIntBase res;
+        res.x = (x == 0 ? 0 : mod() - x);
         return res;
     }
-    constexpr MLong inv() const {
-        assert(x != 0);
-        return power(*this, getMod() - 2);
+
+    constexpr ModIntBase inv() const {
+        return power(*this, mod() - 2);
     }
-    constexpr MLong& operator*=(MLong rhs)& {
-        x = mul(x, rhs.x, getMod());
+
+    constexpr ModIntBase& operator*=(const ModIntBase& rhs)& {
+        x = mulMod<mod()>(x, rhs.val());
         return *this;
     }
-    constexpr MLong& operator+=(MLong rhs)& {
-        x = norm(x + rhs.x);
+    constexpr ModIntBase& operator+=(const ModIntBase& rhs)& {
+        x += rhs.val();
+        if (x >= mod()) {
+            x -= mod();
+        }
         return *this;
     }
-    constexpr MLong& operator-=(MLong rhs)& {
-        x = norm(x - rhs.x);
+    constexpr ModIntBase& operator-=(const ModIntBase& rhs)& {
+        x -= rhs.val();
+        if (x >= mod()) {
+            x += mod();
+        }
         return *this;
     }
-    constexpr MLong& operator/=(MLong rhs)& {
+    constexpr ModIntBase& operator/=(const ModIntBase& rhs)& {
         return *this *= rhs.inv();
     }
-    friend constexpr MLong operator*(MLong lhs, MLong rhs) {
-        MLong res = lhs;
-        res *= rhs;
-        return res;
+
+    friend constexpr ModIntBase operator*(ModIntBase lhs, const ModIntBase& rhs) {
+        lhs *= rhs;
+        return lhs;
     }
-    friend constexpr MLong operator+(MLong lhs, MLong rhs) {
-        MLong res = lhs;
-        res += rhs;
-        return res;
+    friend constexpr ModIntBase operator+(ModIntBase lhs, const ModIntBase& rhs) {
+        lhs += rhs;
+        return lhs;
     }
-    friend constexpr MLong operator-(MLong lhs, MLong rhs) {
-        MLong res = lhs;
-        res -= rhs;
-        return res;
+    friend constexpr ModIntBase operator-(ModIntBase lhs, const ModIntBase& rhs) {
+        lhs -= rhs;
+        return lhs;
     }
-    friend constexpr MLong operator/(MLong lhs, MLong rhs) {
-        MLong res = lhs;
-        res /= rhs;
-        return res;
+    friend constexpr ModIntBase operator/(ModIntBase lhs, const ModIntBase& rhs) {
+        lhs /= rhs;
+        return lhs;
     }
-    friend constexpr std::istream& operator>>(std::istream& is, MLong& a) {
-        int64_t v;
-        is >> v;
-        a = MLong(v);
+
+    friend constexpr std::istream& operator>>(std::istream& is, ModIntBase& a) {
+        int64_t i;
+        is >> i;
+        a = i;
         return is;
     }
-    friend constexpr std::ostream& operator<<(std::ostream& os, const MLong& a) {
+    friend constexpr std::ostream& operator<<(std::ostream& os, const ModIntBase& a) {
         return os << a.val();
     }
-    friend constexpr bool operator==(MLong lhs, MLong rhs) {
+
+    friend constexpr std::strong_ordering operator<=>(ModIntBase lhs, ModIntBase rhs) {
+        return lhs.val() <=> rhs.val();
+    }
+
+    friend constexpr bool operator==(ModIntBase lhs, ModIntBase rhs) {
         return lhs.val() == rhs.val();
     }
-    friend constexpr bool operator!=(MLong lhs, MLong rhs) {
+
+    friend constexpr bool operator!=(ModIntBase lhs, ModIntBase rhs) {
         return lhs.val() != rhs.val();
     }
+
+    constexpr U operator()() const {
+        return val();
+    }
+
+    constexpr ModIntBase& operator++() {
+        *this += 1;
+        return *this;
+    }
+
+    constexpr ModIntBase operator++(int) {
+        ModIntBase temp = *this;
+        ++*this;
+        return temp;
+    }
+
+    constexpr ModIntBase& operator--() {
+        *this -= 1;
+        return *this;
+    }
+
+    constexpr ModIntBase operator--(int) {
+        ModIntBase temp = *this;
+        --*this;
+        return temp;
+    }
+
+    constexpr ModIntBase pow(uint64_t e) const {
+        return power(*this, e);
+    }
+
+    friend constexpr ModIntBase operator^(ModIntBase a, uint64_t e) {
+        return power(a, e);
+    }
+
+    friend constexpr ModIntBase pow(ModIntBase a, uint64_t e) {
+        return power(a, e);
+    }
+private:
+    U x;
 };
 
-template<>
-int64_t MLong<0LL>::Mod = P;
+template<uint32_t P>
+using ModInt = ModIntBase<uint32_t, P>;
+template<uint64_t P>
+using ModInt64 = ModIntBase<uint64_t, P>;
 
-using mlong = MLong<0LL>;
-const mlong invB = mlong(B).inv();
+using mint64 = ModInt64<i64(1E18) + 9>;
+
+inline constexpr mint64 operator "" _Z(unsigned long long v) {
+    return mint64(v);
+}
+inline constexpr mint64 operator "" _z(unsigned long long v) {
+    return mint64(v);
+}
+
+#if __cplusplus > 202002L
+template<std::unsigned_integral U, U P>
+struct std::formatter<ModIntBase<U, P>> {
+    constexpr auto parse(std::format_parse_context& ctx) {
+        return ctx.begin();
+    }
+
+    template<typename FormatContext>
+    auto format(const ModIntBase<U, P>& x, FormatContext& ctx) const {
+        return std::format_to(ctx.out(), "{}", x());
+    }
+};
+#endif
+
+std::mt19937 rnd(std::chrono::steady_clock::now().time_since_epoch().count());
+const mint64 Base = rnd();
+const mint64 iBase = Base.inv();
 
 namespace coef {
     int n;
-    std::vector<mlong> _p{ 1 }, _q{ 1 };
+    std::vector<mint64> _p{ 1 }, _ip{ 1 };
     void init(int m) {
         if (m <= n) {
             return;
         }
         _p.resize(m + 1);
-        _q.resize(m + 1);
+        _ip.resize(m + 1);
         for (int i = n + 1; i <= m; i++) {
-            _p[i] = _p[i - 1] * B;
-            _q[i] = _q[i - 1] * invB;
+            _p[i] = _p[i - 1] * Base;
+            _ip[i] = _ip[i - 1] * iBase;
         }
         n = m;
     }
-    mlong q(int m);
-    mlong p(int m) {
+    mint64 ip(int m);
+    mint64 p(int m) {
         if (m < 0) {
-            return q(-m);
+            return ip(-m);
         }
         if (m > n) {
             init(2 * m);
         }
         return _p[m];
     }
-    mlong q(int m) {
+    mint64 ip(int m) {
         if (m < 0) {
             return p(-m);
         }
         if (m > n) {
             init(2 * m);
         }
-        return _q[m];
+        return _ip[m];
     }
 };
 
-struct Hash {
-    mlong x;
-    int siz;
-    Hash(mlong x = 0, int siz = 0) : x(x), siz(siz) {}
-    int64_t val() const {
+class Hash {
+public:
+    Hash(mint64 x = 0, std::size_t siz = 0) : x(x), siz(siz) {}
+    constexpr uint64_t val() const {
         return x.val();
+    }
+    constexpr uint64_t operator()() const {
+        return x.val();
+    }
+    constexpr std::size_t size() const {
+        return siz;
     }
     constexpr friend Hash operator+(const Hash& a, const Hash& b) {
         return Hash(a.val() + b.val() * coef::p(a.siz), a.siz + b.siz);
     }
     constexpr friend Hash operator-(const Hash& a, const Hash& b) {
         assert(a.siz >= b.siz);
-        return Hash((a.val() - b.val()) * coef::q(b.siz), a.siz - b.siz);
+        return Hash((a.val() - b.val()) * coef::ip(b.siz), a.siz - b.siz);
     }
     constexpr friend bool operator==(const Hash& a, const Hash& b) {
         return a.val() == b.val();
@@ -226,11 +250,15 @@ struct Hash {
     constexpr friend bool operator!=(const Hash& a, const Hash& b) {
         return a.val() != b.val();
     }
+
+private:
+    mint64 x;
+    std::size_t siz;
 };
 
 struct StringHash { // a0 * b ^ 0 + a1 * b ^ 1 + ... + ai * B ^ i + ... + an * B ^ n;
     int n;
-    std::vector<mlong> h, r;
+    std::vector<mint64> h, r;
     StringHash() { n = 0; h.push_back(0), r.push_back(0); }
     StringHash(const char* s) {
         init(std::string_view(s));
@@ -251,13 +279,13 @@ struct StringHash { // a0 * b ^ 0 + a1 * b ^ 1 + ... + ai * B ^ i + ... + an * B
         h.push_back(h.back() + coef::p(n++) * c);
     }
     Hash get(int l, int r) {
-        return Hash((h[r] - h[l]) * coef::q(l), r - l);
+        return Hash((h[r] - h[l]) * coef::ip(l), r - l);
     }
     bool same(int x, int y, int l, int r) {
         return get(x, y) == get(l, r);
     }
     bool isPalindrom(int x, int y) { // only available when not add
-        return (r[n - x] - r[n - y]) * coef::q(n - y) == get(x, y).val();
+        return (r[n - x] - r[n - y]) * coef::ip(n - y) == get(x, y).val();
     }
     constexpr Hash operator()(int l, int r) {
         return get(l, r);

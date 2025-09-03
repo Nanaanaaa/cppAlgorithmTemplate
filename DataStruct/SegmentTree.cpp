@@ -31,7 +31,7 @@ struct SegmentTree {
         return info[p + size];
     }
 
-    constexpr Info operator()(int l, int r) const {
+    constexpr Info rangeQuery(int l, int r) const {
         if (l == r) {
             return Info();
         }
@@ -53,8 +53,12 @@ struct SegmentTree {
         return a + b;
     }
 
-    template<typename F>
-    int maxRight(int l, F&& pred) const {
+    constexpr Info operator()(int l, int r) const {
+        return rangeQuery(l, r);
+    }
+
+    template<typename Func>
+    int maxRight(int l, F&& pred) {
         if (l == n) {
             return n;
         }
@@ -80,8 +84,8 @@ struct SegmentTree {
         return n;
     }
 
-    template<typename F>
-    int minLeft(int r, F&& pred) const {
+    template<typename Func>
+    int minLeft(int r, Func&& pred) {
         if (0 == r) {
             return 0;
         }
@@ -114,6 +118,7 @@ struct SegmentTree {
 };
 
 struct Info {
+    Info() {}
     constexpr friend Info operator+(const Info& a, const Info& b) {
         Info res{};
         res = {};

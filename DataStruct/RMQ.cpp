@@ -56,6 +56,11 @@ struct RMQ {
         }
     }
     T operator()(int l, int r) {
+        if (l > r) {
+            return T();
+        }
+        l = std::max(0, l);
+        r = std::min(n, r);
         if (l / B != (r - 1) / B) {
             T ans = std::min(suf[l], pre[r - 1], cmp);
             l = l / B + 1;

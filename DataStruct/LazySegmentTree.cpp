@@ -32,7 +32,7 @@ struct LazySegmentTree {
         }
     }
 
-    constexpr Info operator[](int p) {
+    constexpr Info operator[](int p) const {
         p += size;
         for (int i = log; i >= 1; i--) {
             push(p >> i);
@@ -40,7 +40,7 @@ struct LazySegmentTree {
         return info[p];
     }
 
-    constexpr Info operator()(int l, int r) {
+    constexpr Info rangeQuery(int l, int r) const {
         if (l == r) {
             return Info();
         }
@@ -69,6 +69,10 @@ struct LazySegmentTree {
             r >>= 1;
         }
         return a + b;
+    }
+
+    constexpr Info operator()(int l, int r) const {
+        return rangeQuery(l, r);
     }
 
     void rangeApply(int l, int r, const Tag& t) {
@@ -106,7 +110,8 @@ struct LazySegmentTree {
         }
     }
 
-    int maxRight(int l, auto&& pred) {
+    template<typename Func>
+    int maxRight(int l, Func&& pred) {
         if (l == n) {
             return n;
         }
@@ -137,7 +142,8 @@ struct LazySegmentTree {
         return n;
     }
 
-    int minLeft(int r, auto&& pred) {
+    template<typename Func>
+    int minLeft(int r, Func&& pred) {
         if (r == 0) {
             return 0;
         }
@@ -188,10 +194,12 @@ struct LazySegmentTree {
 };
 
 struct Tag {
+    Tag() {}
     void apply(const Tag& t) {}
 };
 
 struct Info {
+    Info() {}
     void apply(const Tag& t) {}
     constexpr friend Info operator+(const Info& a, const Info& b) {
         Info res{};
