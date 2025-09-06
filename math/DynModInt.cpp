@@ -77,8 +77,7 @@ public:
     constexpr DynModInt(T x_) : x(x_% mod()) {}
     template<std::signed_integral T>
     constexpr DynModInt(T x_) {
-        int v = x_;
-        v %= int(mod());
+        int v = x_ % int(mod());
         if (v < 0) {
             v += mod();
         }

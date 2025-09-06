@@ -28,9 +28,8 @@ public:
     constexpr ModIntBase(T x_) : x(x_% mod()) {}
     template<std::signed_integral T>
     constexpr ModIntBase(T x_) {
-        using S = std::make_signed_t<T>;
-        S v = x_;
-        v %= S(mod());
+        using S = std::make_signed_t<U>;
+        S v = x_ % S(mod());
         if (v < 0) {
             v += mod();
         }
@@ -204,19 +203,20 @@ namespace coef {
         }
         n = m;
     }
-    mint64 ip(int m);
-    mint64 p(int m) {
+    mint64 pw(int m);
+    mint64 ipw(int m);
+    mint64 pw(int m) {
         if (m < 0) {
-            return ip(-m);
+            return ipw(-m);
         }
         if (m > n) {
             init(2 * m);
         }
         return _p[m];
     }
-    mint64 ip(int m) {
+    mint64 ipw(int m) {
         if (m < 0) {
-            return p(-m);
+            return pw(-m);
         }
         if (m > n) {
             init(2 * m);
