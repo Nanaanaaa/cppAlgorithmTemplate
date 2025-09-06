@@ -3,6 +3,7 @@ struct EBCC {
     std::vector<std::vector<int>> adj;
     std::vector<int> stk;
     std::vector<int> dfn, low, bel;
+    std::vector<std::pair<int, int>> bridge;
     int cur, cnt;
 
     EBCC() {}
@@ -15,6 +16,7 @@ struct EBCC {
         adj.assign(n, {});
         dfn.assign(n, -1);
         low.resize(n);
+        bridge.assign(n, {});
         bel.assign(n, -1);
         cur = cnt = 0;
     }
@@ -35,8 +37,10 @@ struct EBCC {
             if (dfn[y] == -1) {
                 dfs(y, x);
                 low[x] = std::min(low[x], low[y]);
-            }
-            else if (bel[y] == -1) {
+                if (low[y] > dfn[x]) {
+                    bridge.emplace_back(x, y);
+                }
+            } else if (bel[y] == -1) {
                 low[x] = std::min(low[x], dfn[y]);
             }
         }
@@ -73,8 +77,7 @@ struct EBCC {
             for (auto j : adj[i]) {
                 if (bel[i] < bel[j]) {
                     g.edges.emplace_back(bel[i], bel[j]);
-                }
-                else if (i < j) {
+                } else if (i < j) {
                     g.cnte[bel[i]]++;
                 }
             }

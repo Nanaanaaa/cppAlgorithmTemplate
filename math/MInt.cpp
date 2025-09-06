@@ -162,8 +162,8 @@ using ModInt = ModIntBase<uint32_t, P>;
 template<uint64_t P>
 using ModInt64 = ModIntBase<uint64_t, P>;
 
-using modint1000000007 = ModInt<1000000007>;
-using modint998244353 = ModInt<998244353>;
+using modint1000000007 = ModInt<1000000007U>;
+using modint998244353 = ModInt<998244353U>;
 
 using mint = modint998244353;
 
