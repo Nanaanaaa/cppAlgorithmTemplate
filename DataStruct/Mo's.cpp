@@ -1,11 +1,27 @@
 constexpr int M = 500;
 
-std::sort(qry.begin(), qry.end(), [&](const auto& a, const auto& b) {
-    if (a[0] / M != b[0] / M) return a[0] < b[0];
-    return a[0] / M % 2 ? a[1] > b[1] : a[1] < b[1];
+struct Info {
+    int l, r, id;
+};
+
+std::vector<Info> qry(q);
+for (int i = 0; i < q; i++) {
+    int l, r;
+    std::cin >> l >> r;
+    qry[i] = { l - 1, r - 1, i };
+}
+
+std::vector<int> bel(n);
+for (int i = 0; i < n; i++) {
+    bel[i] = i / M;
+}
+
+std::sort(qry.begin(), qry.end(), [&](const Info& a, const Info& b) {
+    if (bel[a.l] != bel[b.l]) return a.l < b.l;
+    return bel[a.l] % 2 ? a.r > b.r : a.r < b.r;
 });
 
-int l = 1, r = 0, res = 0;
+int res = 0;
 std::vector<int> ans(q);
 
 auto add = [&](int i) {
@@ -15,10 +31,11 @@ auto del = [&](int i) {
 
 };
 
-for (auto [x, y, i] : qry) {
-    while (l < x) del(l++);
-    while (l > x) add(--l);
-    while (r < y) add(++r);
-    while (r > y) del(r--);
-    ans[i] = res;
+int l = 0, r = -1;
+for (auto [ql, qr, id] : qry) {
+    while (l < ql) del(l++);
+    while (l > ql) add(--l);
+    while (r < qr) add(++r);
+    while (r > qr) del(r--);
+    ans[id] = res;
 }
