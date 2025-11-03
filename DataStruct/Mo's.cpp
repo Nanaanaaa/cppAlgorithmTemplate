@@ -1,10 +1,10 @@
 constexpr int M = 500;
 
-struct Info {
+struct Query {
     int l, r, id;
 };
 
-std::vector<Info> qry(q);
+std::vector<Query> qry(q);
 for (int i = 0; i < q; i++) {
     int l, r;
     std::cin >> l >> r;
@@ -16,7 +16,7 @@ for (int i = 0; i < n; i++) {
     bel[i] = i / M;
 }
 
-std::sort(qry.begin(), qry.end(), [&](const Info& a, const Info& b) {
+std::sort(qry.begin(), qry.end(), [&](const Query& a, const Query& b) {
     if (bel[a.l] != bel[b.l]) return a.l < b.l;
     return bel[a.l] % 2 ? a.r > b.r : a.r < b.r;
 });

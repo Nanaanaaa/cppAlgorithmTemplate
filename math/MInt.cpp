@@ -165,10 +165,10 @@ using modint998244353 = ModInt<998244353U>;
 
 using mint = modint998244353;
 
-inline constexpr mint operator "" _Z(unsigned long long v) {
+inline constexpr mint operator""_Z(unsigned long long v) {
     return mint(v);
 }
-inline constexpr mint operator "" _z(unsigned long long v) {
+inline constexpr mint operator""_z(unsigned long long v) {
     return mint(v);
 }
 

@@ -163,10 +163,10 @@ using ModInt64 = ModIntBase<uint64_t, P>;
 
 using mint64 = ModInt64<i64(1E18) + 9>;
 
-inline constexpr mint64 operator "" _Z(unsigned long long v) {
+inline constexpr mint64 operator""_Z(unsigned long long v) {
     return mint64(v);
 }
-inline constexpr mint64 operator "" _z(unsigned long long v) {
+inline constexpr mint64 operator""_z(unsigned long long v) {
     return mint64(v);
 }
 
@@ -238,11 +238,11 @@ public:
         return siz;
     }
     constexpr friend Hash operator+(const Hash& a, const Hash& b) {
-        return Hash(a.val() + b.val() * coef::p(a.siz), a.siz + b.siz);
+        return Hash(a.val() + b.val() * coef::pw(a.siz), a.siz + b.siz);
     }
     constexpr friend Hash operator-(const Hash& a, const Hash& b) {
         assert(a.siz >= b.siz);
-        return Hash((a.val() - b.val()) * coef::ip(b.siz), a.siz - b.siz);
+        return Hash((a.val() - b.val()) * coef::ipw(b.siz), a.siz - b.siz);
     }
     constexpr friend bool operator==(const Hash& a, const Hash& b) {
         return a.val() == b.val();
@@ -271,21 +271,21 @@ struct StringHash { // a0 * b ^ 0 + a1 * b ^ 1 + ... + ai * B ^ i + ... + an * B
         h.assign(n + 1, 0);
         r.assign(n + 1, 0);
         for (int i = 0; i < n; i++) {
-            h[i + 1] = h[i] + coef::p(i) * s[i];
-            r[i + 1] = r[i] + coef::p(i) * s[n - 1 - i];
+            h[i + 1] = h[i] + coef::pw(i) * s[i];
+            r[i + 1] = r[i] + coef::pw(i) * s[n - 1 - i];
         }
     }
     void add(char c) { // r is not available from now
-        h.push_back(h.back() + coef::p(n++) * c);
+        h.push_back(h.back() + coef::pw(n++) * c);
     }
     Hash get(int l, int r) {
-        return Hash((h[r] - h[l]) * coef::ip(l), r - l);
+        return Hash((h[r] - h[l]) * coef::ipw(l), r - l);
     }
     bool same(int x, int y, int l, int r) {
         return get(x, y) == get(l, r);
     }
     bool isPalindrom(int x, int y) { // only available when not add
-        return (r[n - x] - r[n - y]) * coef::ip(n - y) == get(x, y).val();
+        return (r[n - x] - r[n - y]) * coef::ipw(n - y) == get(x, y).val();
     }
     constexpr Hash operator()(int l, int r) {
         return get(l, r);
