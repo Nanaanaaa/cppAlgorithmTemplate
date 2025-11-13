@@ -257,9 +257,9 @@ private:
 };
 
 struct StringHash { // a0 * b ^ 0 + a1 * b ^ 1 + ... + ai * B ^ i + ... + an * B ^ n;
-    int n;
+    std::size_t n;
     std::vector<mint64> h, r;
-    StringHash() { n = 0; h.push_back(0), r.push_back(0); }
+    StringHash() :n(0) { h = { 0 }; r = { 0 }; }
     StringHash(const char* s) {
         init(std::string_view(s));
     }
@@ -278,19 +278,19 @@ struct StringHash { // a0 * b ^ 0 + a1 * b ^ 1 + ... + ai * B ^ i + ... + an * B
     void add(char c) { // r is not available from now
         h.push_back(h.back() + coef::pw(n++) * c);
     }
-    Hash get(int l, int r) {
-        return Hash((h[r] - h[l]) * coef::ipw(l), r - l);
+    Hash get(int l_, int r_) const {
+        return Hash((h[r_] - h[l_]) * coef::ipw(l_), r_ - l_);
     }
-    bool same(int x, int y, int l, int r) {
-        return get(x, y) == get(l, r);
+    bool same(int x_, int y_, int l_, int r_) {
+        return get(x_, y_) == get(l_, r_);
     }
-    bool isPalindrom(int x, int y) { // only available when not add
-        return (r[n - x] - r[n - y]) * coef::ipw(n - y) == get(x, y).val();
+    bool isPalindrom(int x_, int y_) { // only available when not add
+        return (r[n - x_] - r[n - y_]) * coef::ipw(n - y_) == get(x_, y_).val();
     }
-    constexpr Hash operator()(int l, int r) {
-        return get(l, r);
+    constexpr Hash operator()(int l_, int r_) {
+        return get(l_, r_);
     }
-    constexpr bool operator()(int a, int b, int c, int d) {
-        return same(a, b, c, d);
+    constexpr bool operator()(int a_, int b_, int c_, int d_) {
+        return same(a_, b_, c_, d_);
     }
 };
