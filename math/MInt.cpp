@@ -172,7 +172,7 @@ inline constexpr mint operator""_z(unsigned long long v) {
     return mint(v);
 }
 
-#if __cplusplus > 202002L
+#ifdef __cpp_lib_format
 template<std::unsigned_integral U, U P>
 struct std::formatter<ModIntBase<U, P>> {
     constexpr auto parse(std::format_parse_context& ctx) {

@@ -20,16 +20,21 @@ struct DSU {
         return x;
     }
 
-    bool merge(int x, int y) {
+    bool merge(int x, int y, bool merge_by_size = true) {
         x = find(x);
         y = find(y);
         if (x == y) {
             return false;
         }
+
+        if (merge_by_size && siz[y] > siz[x]) {
+            std::swap(x, y);
+        }
         siz[x] += siz[y];
         f[y] = x;
         return true;
     }
+
     bool same(int x, int y) {
         return find(x) == find(y);
     }
